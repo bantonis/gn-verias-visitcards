@@ -106,7 +106,7 @@
     draft.assignments = dataArray(draft.assignments).length ? draft.assignments : [{department:'',equipment:''}];
     navActive(id ? 'list' : 'new');
     main.innerHTML = `<div class="page-head"><button type="button" class="back-btn" id="backList" aria-label="Επιστροφή">‹</button><div><h1 class="page-title">${id?'Επεξεργασία κάρτας':'Νέα επαγγελματική κάρτα'}</h1><div class="sub">${id?'Διόρθωσε τα στοιχεία ή πρόσθεσε παρατηρήσεις':'Αυτόματη αναγνώριση και καταχώριση'}</div></div></div>
-      <section class="panel"><h2>01 · Φωτογραφία κάρτας</h2><div class="photo-area" id="photoArea">${previewHTML()}</div><div class="photo-actions"><button type="button" class="btn btn-primary" id="takePhoto">📷 Φωτογράφιση</button><button type="button" class="btn btn-outline" id="choosePhoto">▧ Από συλλογή</button></div><input class="file-input" type="file" accept="image/*" capture="environment" id="cameraInput"><input class="file-input" type="file" accept="image/*" id="galleryInput"><div id="ocrStatus" class="ocr-bar ${draft.photoBlob?'':'hidden'}">${draft.photoBlob?'Μπορείς να επαναλάβεις την αναγνώριση αν χρειάζεται.':' '}<br><button class="btn btn-outline" id="retryOCR" type="button" ${!draft.photoBlob?'disabled':''}>↻ Αναγνώριση κειμένου</button></div><p class="hint">Έκδοση OCR 10: κανονική κάμερα POCO και crop πριν από το OCR, με προτάσεις εταιρείας. Διόρθωσε το πλαίσιο περικοπής με το δάχτυλο αν χρειάζεται. Διατηρούνται οι δύο αναγνώσεις (ελληνικά + αγγλικά και μόνο ελληνικά), με βελτίωση αντίθεσης. Κράτησε την κάρτα επίπεδη, χωρίς αντανακλάσεις, και γέμισε το κάδρο. Η αναγνώριση γίνεται στη συσκευή και απαιτεί διαδίκτυο για την αρχική λήψη των γλωσσών. Έλεγξε τα στοιχεία πριν από την αποθήκευση. Αν το όνομα είχε καταχωριστεί λάθος παλαιότερα, μπορείς να το σβήσεις και να ξαναπατήσεις OCR ή να διαλέξεις πρόταση.</p></section>
+      <section class="panel"><h2>01 · Φωτογραφία κάρτας</h2><div class="photo-area" id="photoArea">${previewHTML()}</div><div class="photo-actions"><button type="button" class="btn btn-primary" id="takePhoto">📷 Φωτογράφιση</button><button type="button" class="btn btn-outline" id="choosePhoto">▧ Από συλλογή</button></div><input class="file-input" type="file" accept="image/*" capture="environment" id="cameraInput"><input class="file-input" type="file" accept="image/*" id="galleryInput"><div id="ocrStatus" class="ocr-bar ${draft.photoBlob?'':'hidden'}">${draft.photoBlob?'Μπορείς να επαναλάβεις την αναγνώριση αν χρειάζεται.':' '}<br><button class="btn btn-outline" id="retryOCR" type="button" ${!draft.photoBlob?'disabled':''}>↻ Αναγνώριση κειμένου</button></div><p class="hint">Έκδοση OCR 11: κανονική κάμερα POCO και crop πριν από το OCR, με προσεκτικό έλεγχο επωνυμίας. Διόρθωσε το πλαίσιο περικοπής με το δάχτυλο αν χρειάζεται. Διατηρούνται οι δύο αναγνώσεις (ελληνικά + αγγλικά και μόνο ελληνικά), με βελτίωση αντίθεσης. Κράτησε την κάρτα επίπεδη, χωρίς αντανακλάσεις, και γέμισε το κάδρο. Η αναγνώριση γίνεται στη συσκευή και απαιτεί διαδίκτυο για την αρχική λήψη των γλωσσών. Έλεγξε τα στοιχεία πριν από την αποθήκευση. Αν το όνομα είχε καταχωριστεί λάθος παλαιότερα, μπορείς να το σβήσεις και να ξαναπατήσεις OCR ή να διαλέξεις πρόταση.</p></section>
       <section class="panel"><h2>02 · Στοιχεία επικοινωνίας <small>— διορθώνονται</small></h2><div class="field-grid">${field('name','Ονοματεπώνυμο',{full:true,placeholder:'Όνομα και επώνυμο'})}<div id="nameSuggestions" class="name-suggestion-block"></div>${field('company','Εταιρεία',{full:true,placeholder:'Εταιρεία / προμηθευτής'})}<div id="companySuggestions" class="company-suggestion-block"></div>${field('role','Ιδιότητα',{full:true,placeholder:'π.χ. Τεχνικός'})}${field('phone','Σταθερά τηλέφωνα',{full:true,placeholder:'π.χ. 210 4809673 / 210 4809674'})}${field('mobile','Κινητό τηλέφωνο',{type:'tel'})}${field('fax','Fax',{type:'tel'})}<div id="faxSuggestions" class="fax-choice-block"></div>${field('address','Διεύθυνση',{full:true,placeholder:'Οδός, αριθμός, Τ.Κ., πόλη'})}${field('email','Email',{full:true,type:'email',autocomplete:'email'})}${field('website','Ιστοσελίδα',{full:true,placeholder:'www.example.gr'})}</div></section>
       <section class="panel"><h2>03 · Τμήματα & μηχανήματα</h2><p class="panel-tip">Ο ίδιος τεχνικός μπορεί να υποστηρίζει πολλά μηχανήματα σε διαφορετικά τμήματα.</p><div id="assignments">${assignmentsHTML()}</div><datalist id="knownDepartments"><option value="Τεχνική Υπηρεσία"><option value="Ακτινολογικό"><option value="Χειρουργεία"><option value="ΜΕΘ"><option value="Καρδιολογικό"><option value="ΤΕΠ"><option value="Εργαστήρια"><option value="Φυσικοθεραπεία"><option value="Μικροβιολογικό"><option value="Αποστείρωση"><option value="Αιμοδοσία"><option value="Πληροφορική"></datalist><button type="button" class="btn btn-outline" id="addAssignment">＋ Προσθήκη μηχανήματος</button></section>
       <section class="panel"><h2>04 · Παρατηρήσεις</h2><div class="field"><label for="f_notes">Σημειώσεις / οδηγίες επικοινωνίας / ιστορικό</label><textarea id="f_notes" placeholder="π.χ. Συντηρεί τον υπέρηχο του ΤΕΠ. Τηλεφωνούμε πρώτα στο κινητό…">${esc(draft.notes||'')}</textarea></div><p class="hint">Μη γράφεις στοιχεία ασθενών ή άλλες ευαίσθητες πληροφορίες.</p><details class="raw-details"><summary>Προβολή του κειμένου OCR (για έλεγχο)</summary><div class="field"><textarea id="f_rawText" placeholder="Το αναγνωρισμένο κείμενο εμφανίζεται εδώ…">${esc(draft.rawText||'')}</textarea></div></details></section>
@@ -536,18 +536,44 @@
     target.appendChild(wrap);
   }
 
-  // OCR 10: Υποψήφιες επωνυμίες από όλο το αναγνωρισμένο κείμενο.
+  // OCR 11: Υποψήφιες επωνυμίες από όλο το αναγνωρισμένο κείμενο.
   // Δεν χρησιμοποιούμε αυθαίρετα το domain ως εταιρεία ούτε τις γραμμές
   // διεύθυνσης, τηλεφώνων ή ονοματεπωνύμων. Η αμφιβολία εμφανίζεται στον χρήστη.
   const COMPANY_STRONG = /(?:^|\s)(?:α\.?\s*ε\.?|αβεε|ε\.?\s*π\.?\s*ε\.?|ι\.?\s*κ\.?\s*ε\.?|ο\.?\s*ε\.?|ε\.?\s*ε\.?|ltd\.?|limited|inc\.?|gmbh|s\.?a\.?|company|εταιρεια)(?=\s|$|[.,])/i;
   const COMPANY_TERMS = /(?:medical|medic|hospital|clinic|health|healthcare|tech(?:nologies)?|systems|solutions|industr|group|engineering|equipment|electronic|diagnostic|laborator|automation|service\s+group|biomedical|μηχανηματ|συστηματ|ιατρικ|νοσοκομ|κλινικ|διαγνωστικ|βιοιατρικ|τεχνολογ|ηλεκτρονικ|εμπορικ|βιομηχαν|εξοπλισμ|εργαστηριακ|αντιπροσωπει)/i;
   const COMPANY_GENERIC = /^(?:εταιρεια|company|λογοτυπο|logo|επαγγελματικη καρτα|τεχνικη υποστηριξη|τεχνικο τμημα|τμημα προμηθειων|επικοινωνια|στοιχεια επικοινωνιας|επικοινωνηστε μαζι μας|διευθυνση|website|ιστοσελιδα|email|παρατηρησεις|υπηρεσιες|προιοντα|γραφεια|office|contact|support|sales|fax|tel)$/i;
   const COMPANY_JOB = /(?:^|\s)(?:τεχνικος|μηχανικος|υπευθυνος|πωλητης|διευθυντης|παθολογος|ογκoλογος|ογκολoγος|ιατρος|secretary|technician|engineer|manager|director|doctor|physician)(?:$|\s)/i;
+  // Στελέχη, ειδικότητες, ονόματα τμημάτων κ.λπ. δεν γίνονται εταιρείες
+  // ακόμη και αν περιέχουν όρους όπως «κλινική» ή «νοσοκομείο».
+  const COMPANY_ROLE_LINE = /(?:^|\s)(?:διευθυντ\p{L}*|προισταμ\p{L}*|υπευθυν\p{L}*|παθολογ\p{L}*|ογκολ\p{L}*|καρδιολογ\p{L}*|χειρουργ\p{L}*|ιατρος|ιατροι|ιατρου|ιατρων|τεχνικος|μηχανικος|επιμελητ\p{L}*|επιβλεπ\p{L}*|director|manager|physician|doctor|head\s+of|chief\s+of)(?:$|\s)/iu;
+  const COMPANY_ORG_UNIT = /(?:^|\s)(?:τμημα|διευθυνση|γραμματεια|μονάδα|μοναδα|κλινικης|κλινικων|department|ward)(?:$|\s)/iu;
+  function readableCompanyLine(value) {
+    const letters=(value.match(/\p{L}/gu)||[]);
+    if(letters.length<4)return false;
+    // Τυπικές αστοχίες OCR λογότυπων όπως «ΞΞΞΞΣ, ΕΣ».
+    if(/([Α-Ωα-ωA-Za-z])\1{2,}/u.test(value))return false;
+    const normalized=nameNormalize(value);
+    if(/^(?:[α-ω]\s*){1,3}$/u.test(normalized))return false;
+    const tokens=normalized.split(/\s+/).filter(Boolean);
+    const symbolChars=(value.match(/[^\p{L}\p{N}\s.&,\-®™]/gu)||[]).length;
+    if(symbolChars>Math.max(1,letters.length*.14))return false;
+    const greek=(normalized.match(/[α-ω]/g)||[]).length;
+    const latin=(normalized.match(/[a-z]/g)||[]).length;
+    if (greek>=4 && !/[αεηιουω]/.test(normalized))return false;
+    if (latin>=4 && !/[aeiouy]/.test(normalized))return false;
+    if(tokens.length>1 && tokens.every(t=>t.length<=2))return false;
+    return true;
+  }
   function companyLineCandidate(raw, index, lines, recognizedNames=[]) {
     const explicitlyLabeled=/^(?:εταιρ[εέ]ια|επωνυμ[ιί]α|company|organization|organisation|brand)\s*[:：-]/iu.test(raw);
     const value=raw.replace(/^(?:εταιρ[εέ]ια|επωνυμ[ιί]α|company|organization|organisation|brand)\s*[:：-]\s*/iu,'').replace(/^[•·*\-\s]+/u,'').trim();
     const norm=nameNormalize(value);
     if(value.length<4 || value.length>75 || norm.length<4 || COMPANY_GENERIC.test(norm))return null;
+    if(!readableCompanyLine(value))return null;
+    const isRoleLine=COMPANY_ROLE_LINE.test(norm) || COMPANY_ORG_UNIT.test(norm);
+    // Ακόμη και «ΔΙΕΥΘΥΝΤΗΣ Γ' ΟΓΚΟΛΟΓΙΚΗΣ ΚΛΙΝΙΚΗΣ» περιέχει λέξη
+    // «κλινικής», αλλά είναι ιδιότητα, όχι επωνυμία εταιρείας.
+    if(isRoleLine && !explicitlyLabeled && !COMPANY_STRONG.test(norm))return null;
     if(/(?:@|www\.|https?:|\b(?:fax|τηλ|telephone|phone|mobile|κινητο|κωδικος)\b)/i.test(norm))return null;
     if(/\d{3,}/.test(value)||looksLikeAddress(value)||!/[\p{L}]/u.test(value))return null;
     if(/[<>\\={}\[\]]/.test(value))return null;
@@ -579,7 +605,19 @@
   function extractCompanyCandidates(text, recognizedNames=[]) {
     const lines=String(text||'').replace(/[\u200B-\u200D]/g,'').split(/[\r\n]+/)
       .map(l=>l.replace(/\s+/g,' ').trim()).filter(Boolean);
-    return lines.map((line,index)=>companyLineCandidate(line,index,lines,recognizedNames)).filter(Boolean);
+    const candidates=lines.map((line,index)=>companyLineCandidate(line,index,lines,recognizedNames)).filter(Boolean);
+    // Στα λογότυπα η εταιρεία και το HOSPITAL/TECHNOLOGIES κ.λπ.
+    // συχνά είναι δύο γειτονικές γραμμές.
+    for(let i=0;i<lines.length-1;i++) {
+      const first=lines[i],second=lines[i+1];
+      if (/^(?:HOSPITAL|MEDICAL|TECHNOLOGIES|SYSTEMS|GROUP|HEALTHCARE|CLINIC|TECH)$/i.test(second) &&
+          /^[\p{L}\p{M}][\p{L}\p{M} &'’.-]{3,35}$/u.test(first) &&
+          !COMPANY_ROLE_LINE.test(nameNormalize(first)) && !COMPANY_ROLE_LINE.test(nameNormalize(second))) {
+        const combined=companyLineCandidate(first+' '+second,i,lines,recognizedNames);
+        if(combined)candidates.push({...combined,score:combined.score+1.4});
+      }
+    }
+    return candidates;
   }
   function mergeCompanyCandidates(texts, recognizedNames=[]) {
     const found=new Map();
@@ -597,7 +635,12 @@
     if(!target)return;
     target.replaceChildren();
     const suggestions=candidates.filter(c=>c.score>=4.7).slice(0,5);
-    if(!suggestions.length)return;
+    if(!suggestions.length){
+      const hint=document.createElement('div');hint.className='hint';
+      hint.textContent='Δεν διαβάστηκε αξιόπιστα επωνυμία. Αν το λογότυπο είναι γραφικό, συμπλήρωσε την εταιρεία χειροκίνητα.';
+      target.appendChild(hint);
+      return;
+    }
     const help=document.createElement('div');help.className='hint';
     help.textContent='Πιθανές εταιρείες από την κάρτα — επίλεξε τη σωστή (το OCR μπορεί να κάνει λάθη):';
     target.appendChild(help);
@@ -612,6 +655,29 @@
       wrap.appendChild(btn);
     }
     target.appendChild(wrap);
+  }
+
+  // Επιπλέον ανάγνωση ΜΟΝΟ της ζώνης λογότυπου. Η γενική OCR
+  // συχνά αγνοεί μεγάλα στυλιζαρισμένα γράμματα όταν βλέπει όλη την κάρτα.
+  async function prepareLogoRegion(blob) {
+    const url=URL.createObjectURL(blob);
+    try {
+      const img=await new Promise((resolve,reject)=>{
+        const el=new Image();el.onload=()=>resolve(el);
+        el.onerror=()=>reject(new Error('Αδυναμία προετοιμασίας λογότυπου'));
+        el.src=url;
+      });
+      const cropWidth=img.naturalWidth, cropHeight=Math.max(1,Math.round(img.naturalHeight*.55));
+      const scale=Math.min(2.0,Math.max(1,2300/cropWidth));
+      const cv=document.createElement('canvas');
+      cv.width=Math.max(1,Math.round(cropWidth*scale));
+      cv.height=Math.max(1,Math.round(cropHeight*scale));
+      const ctx=cv.getContext('2d',{alpha:false});
+      ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
+      ctx.filter='grayscale(1) contrast(1.35)';
+      ctx.drawImage(img,0,0,cropWidth,cropHeight,0,0,cv.width,cv.height);
+      return await new Promise((resolve,reject)=>cv.toBlob(b=>b?resolve(b):reject(new Error('Αποτυχία περιοχής λογότυπου')),'image/png'));
+    } finally {URL.revokeObjectURL(url);}
   }
 
   async function processOCR() {
@@ -661,13 +727,36 @@
       // Όταν δεν υπάρχει αξιόπιστο όνομα, αφήνουμε κενό αντί να βάζουμε διεύθυνση.
       parsed.name = nameCandidates[0]?.score>=6.3 ? nameCandidates[0].name : '';
       showNameSuggestions(nameCandidates);
-      const companyCandidates = mergeCompanyCandidates([bilingual,greekText], nameCandidates.map(c=>c.name));
-      // Αυτόματη συμπλήρωση μόνο αν η υποψήφια εταιρεία ξεχωρίζει καθαρά.
-      // Διαφορετικά αφήνουμε τον χρήστη να διαλέξει, όχι λάθος επωνυμία.
-      const topCompany=companyCandidates[0];
-      const runnerUp=companyCandidates[1];
-      if(topCompany && topCompany.score>=8.3 && (!runnerUp || topCompany.score-runnerUp.score>=1.1) &&
-         (topCompany.name.trim().split(/\s+/).length>1 || COMPANY_STRONG.test(nameNormalize(topCompany.name)) || COMPANY_TERMS.test(nameNormalize(topCompany.name))))
+      let logoText='';
+      let companyCandidates=mergeCompanyCandidates([bilingual,greekText],nameCandidates.map(c=>c.name));
+      // Εάν δεν υπάρχει ξεκάθαρη επωνυμία, δοκιμάζουμε επιπλέον τα
+      // στυλιζαρισμένα γράμματα στο επάνω τμήμα, μόνο με αγγλικό μοντέλο.
+      const initialBest=companyCandidates[0];
+      const initialSecond=companyCandidates[1];
+      const initialClear=initialBest?.score>=9.5 &&
+        (!initialSecond || initialBest.score-initialSecond.score>=1.6) &&
+        (COMPANY_STRONG.test(nameNormalize(initialBest.name)) || COMPANY_TERMS.test(nameNormalize(initialBest.name)));
+      if(!initialClear){
+        try {
+          setOCRStatus('3/3 · Έλεγχος λογότυπου για την εταιρεία…');
+          const brandRegion=await prepareLogoRegion(draft.photoBlob);
+          await worker.reinitialize('eng',1);
+          await worker.setParameters({
+            tessedit_pageseg_mode:Tess.PSM.SPARSE_TEXT,
+            preserve_interword_spaces:'1',user_defined_dpi:'300'
+          });
+          logoText=(await worker.recognize(brandRegion)).data?.text||'';
+          companyCandidates=mergeCompanyCandidates([bilingual,greekText,logoText],nameCandidates.map(c=>c.name));
+        } catch(brandErr) {console.warn('Logo OCR fallback',brandErr);}
+      }
+      // Επιλέγουμε εταιρεία μόνο όταν υπάρχουν πειστικές ενδείξεις,
+      // ποτέ μόνο επειδή ένα τυχαίο OCR token είναι με κεφαλαία.
+      const topCompany=companyCandidates[0], runnerUp=companyCandidates[1];
+      const topNorm=nameNormalize(topCompany?.name||'');
+      const credibleBrand=COMPANY_STRONG.test(topNorm)||COMPANY_TERMS.test(topNorm)||
+        /^(?:metropolitan hospital)$/i.test(topNorm);
+      if(topCompany && credibleBrand && topCompany.score>=9.5 &&
+         (!runnerUp || topCompany.score-runnerUp.score>=1.6))
         parsed.company=topCompany.name;
       showCompanySuggestions(companyCandidates);
       if (grParsed.role && (!parsed.role || (grParsed.role.match(/[Α-Ωα-ω]/g)||[]).length > (parsed.role.match(/[Α-Ωα-ω]/g)||[]).length))
@@ -700,7 +789,7 @@
           if(phoneNumbersIn(draft.phone).includes(number)) draft.phone=removePhoneFromFixed(draft.phone,number);
         if(!String(draft.fax||'').trim()) draft.fax=parsed.fax;
       }
-      draft.rawText = bilingual.trim() + (greekText.trim() ? '\n\n--- Ελληνική ανάγνωση ---\n' + greekText.trim() : '');
+      draft.rawText = bilingual.trim() + (greekText.trim() ? '\n\n--- Ελληνική ανάγνωση ---\n' + greekText.trim() : '') + (logoText.trim() ? '\n\n--- Ανάγνωση λογότυπου ---\n' + logoText.trim() : '');
       applyDraftFields();
       showFaxSuggestions();
       setOCRStatus(bilingual.trim() || greekText.trim()
