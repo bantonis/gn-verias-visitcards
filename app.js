@@ -106,7 +106,7 @@
     draft.assignments = dataArray(draft.assignments).length ? draft.assignments : [{department:'',equipment:''}];
     navActive(id ? 'list' : 'new');
     main.innerHTML = `<div class="page-head"><button type="button" class="back-btn" id="backList" aria-label="Επιστροφή">‹</button><div><h1 class="page-title">${id?'Επεξεργασία κάρτας':'Νέα επαγγελματική κάρτα'}</h1><div class="sub">${id?'Διόρθωσε τα στοιχεία ή πρόσθεσε παρατηρήσεις':'Αυτόματη αναγνώριση και καταχώριση'}</div></div></div>
-      <section class="panel"><h2>01 · Φωτογραφία κάρτας</h2><div class="photo-area" id="photoArea">${previewHTML()}</div><div class="photo-actions"><button type="button" class="btn btn-primary" id="takePhoto">📷 Φωτογράφιση</button><button type="button" class="btn btn-outline" id="choosePhoto">▧ Από συλλογή</button></div><input class="file-input" type="file" accept="image/*" capture="environment" id="cameraInput"><input class="file-input" type="file" accept="image/*" id="galleryInput"><div id="ocrStatus" class="ocr-bar ${draft.photoBlob?'':'hidden'}">${draft.photoBlob?'Μπορείς να επαναλάβεις την αναγνώριση αν χρειάζεται.':' '}<br><button class="btn btn-outline" id="retryOCR" type="button" ${!draft.photoBlob?'disabled':''}>↻ Αναγνώριση κειμένου</button></div><p class="hint">Έκδοση OCR 11: κανονική κάμερα POCO και crop πριν από το OCR, με προσεκτικό έλεγχο επωνυμίας. Διόρθωσε το πλαίσιο περικοπής με το δάχτυλο αν χρειάζεται. Διατηρούνται οι δύο αναγνώσεις (ελληνικά + αγγλικά και μόνο ελληνικά), με βελτίωση αντίθεσης. Κράτησε την κάρτα επίπεδη, χωρίς αντανακλάσεις, και γέμισε το κάδρο. Η αναγνώριση γίνεται στη συσκευή και απαιτεί διαδίκτυο για την αρχική λήψη των γλωσσών. Έλεγξε τα στοιχεία πριν από την αποθήκευση. Αν το όνομα είχε καταχωριστεί λάθος παλαιότερα, μπορείς να το σβήσεις και να ξαναπατήσεις OCR ή να διαλέξεις πρόταση.</p></section>
+      <section class="panel"><h2>01 · Φωτογραφία κάρτας</h2><div class="photo-area" id="photoArea">${previewHTML()}</div><div class="photo-actions"><button type="button" class="btn btn-primary" id="takePhoto">📷 Φωτογράφιση</button><button type="button" class="btn btn-outline" id="choosePhoto">▧ Από συλλογή</button></div><input class="file-input" type="file" accept="image/*" capture="environment" id="cameraInput"><input class="file-input" type="file" accept="image/*" id="galleryInput"><div id="ocrStatus" class="ocr-bar ${draft.photoBlob?'':'hidden'}">${draft.photoBlob?'Μπορείς να επαναλάβεις την αναγνώριση αν χρειάζεται.':' '}<br><button class="btn btn-outline" id="retryOCR" type="button" ${!draft.photoBlob?'disabled':''}>↻ Αναγνώριση κειμένου</button></div><p class="hint">Έκδοση OCR 12: κανονική κάμερα POCO και crop πριν από το OCR, με προσεκτικό έλεγχο επωνυμίας. Διόρθωσε το πλαίσιο περικοπής με το δάχτυλο αν χρειάζεται. Διατηρούνται οι δύο αναγνώσεις (ελληνικά + αγγλικά και μόνο ελληνικά), με βελτίωση αντίθεσης. Κράτησε την κάρτα επίπεδη, χωρίς αντανακλάσεις, και γέμισε το κάδρο. Η αναγνώριση γίνεται στη συσκευή και απαιτεί διαδίκτυο για την αρχική λήψη των γλωσσών. Έλεγξε τα στοιχεία πριν από την αποθήκευση. Αν το όνομα είχε καταχωριστεί λάθος παλαιότερα, μπορείς να το σβήσεις και να ξαναπατήσεις OCR ή να διαλέξεις πρόταση.</p></section>
       <section class="panel"><h2>02 · Στοιχεία επικοινωνίας <small>— διορθώνονται</small></h2><div class="field-grid">${field('name','Ονοματεπώνυμο',{full:true,placeholder:'Όνομα και επώνυμο'})}<div id="nameSuggestions" class="name-suggestion-block"></div>${field('company','Εταιρεία',{full:true,placeholder:'Εταιρεία / προμηθευτής'})}<div id="companySuggestions" class="company-suggestion-block"></div>${field('role','Ιδιότητα',{full:true,placeholder:'π.χ. Τεχνικός'})}${field('phone','Σταθερά τηλέφωνα',{full:true,placeholder:'π.χ. 210 4809673 / 210 4809674'})}${field('mobile','Κινητό τηλέφωνο',{type:'tel'})}${field('fax','Fax',{type:'tel'})}<div id="faxSuggestions" class="fax-choice-block"></div>${field('address','Διεύθυνση',{full:true,placeholder:'Οδός, αριθμός, Τ.Κ., πόλη'})}${field('email','Email',{full:true,type:'email',autocomplete:'email'})}${field('website','Ιστοσελίδα',{full:true,placeholder:'www.example.gr'})}</div></section>
       <section class="panel"><h2>03 · Τμήματα & μηχανήματα</h2><p class="panel-tip">Ο ίδιος τεχνικός μπορεί να υποστηρίζει πολλά μηχανήματα σε διαφορετικά τμήματα.</p><div id="assignments">${assignmentsHTML()}</div><datalist id="knownDepartments"><option value="Τεχνική Υπηρεσία"><option value="Ακτινολογικό"><option value="Χειρουργεία"><option value="ΜΕΘ"><option value="Καρδιολογικό"><option value="ΤΕΠ"><option value="Εργαστήρια"><option value="Φυσικοθεραπεία"><option value="Μικροβιολογικό"><option value="Αποστείρωση"><option value="Αιμοδοσία"><option value="Πληροφορική"></datalist><button type="button" class="btn btn-outline" id="addAssignment">＋ Προσθήκη μηχανήματος</button></section>
       <section class="panel"><h2>04 · Παρατηρήσεις</h2><div class="field"><label for="f_notes">Σημειώσεις / οδηγίες επικοινωνίας / ιστορικό</label><textarea id="f_notes" placeholder="π.χ. Συντηρεί τον υπέρηχο του ΤΕΠ. Τηλεφωνούμε πρώτα στο κινητό…">${esc(draft.notes||'')}</textarea></div><p class="hint">Μη γράφεις στοιχεία ασθενών ή άλλες ευαίσθητες πληροφορίες.</p><details class="raw-details"><summary>Προβολή του κειμένου OCR (για έλεγχο)</summary><div class="field"><textarea id="f_rawText" placeholder="Το αναγνωρισμένο κείμενο εμφανίζεται εδώ…">${esc(draft.rawText||'')}</textarea></div></details></section>
@@ -447,8 +447,8 @@
   const nameNormalize = str => stripForSearch(str).replace(/\s+/g,' ').trim();
   const NAME_ADDRESS_WORDS = /(?:^|\s)(?:οδος|οδ|λεωφορος|λεωφ|λεωφ\.|διευθυνση|διευθ|ταχυδρομικος|ταχ|ταχ\.|τ\.?κ\.?|αριθμος|αρ\.|περιοχη|εδρα|οικισμος|street|avenue|address|road|postcode|zip)(?:$|\s|[.:])/i;
   const NAME_ADDRESS_PLACES = /(?:^|\s)(?:αθηνα|θεσσαλονικη|αλεξανδρουπολη|βεροια|πατρα|καβαλα|δραμα|πειραιας|σερρες|ηρακλειο|ιωαννινα|κοζανη|ελλαδα|greece|thessaloniki|athens)(?:$|\s)/i;
-  const NAME_NONPERSON = /(τεχνικ|μηχανικ|συντηρησ|υπευθυν|προισταμ|πωλητ|service|engineer|sales|support|manager|εταιρει|εμπορικ|ανωνυμ|βιομηχαν|βιοτεχν|επιχειρη|ιατρικ|εξοπλισμ|μηχανημ|τεχνολογ|νοσοκομ|εργαστηρ|ανταλλακτικ|ομιλ|γραφει|προμηθει|συστημ|φυσικοθεραπε|αποκαταστασ|παθολογ|ογκολ|χειρουργ|καρδιολογ|ακτινολογ|διευθυντ|καρτεσ|καρτα|επικοινωνι|παροχ|πελατ|προιον|services|solutions|company|limited|international|information|medical|equipment|technology|hospital)/i;
-  const ROLE_WORDS = /(τεχνικ|μηχανικ|υπευθυν|πωλητ|πωλησε|διευθυντ|προισταμ|παθολογ|ογκoλογ|ογκολoγ|ογκολo|ογκολ|ιατρ|χειρουργ|καρδιολογ|ακτινολογ|βιοιατρ|service|engineer|technician|sales|manager|director|support|doctor|physician)/i;
+  const NAME_NONPERSON = /(καθηγητ|παιδιατρ|νευρολογ|αναπτυξιολογ|ομοτιμ|επικουρ|professor|neurology|pediatric|paediatric|developmental|τεχνικ|μηχανικ|συντηρησ|υπευθυν|προισταμ|πωλητ|service|engineer|sales|support|manager|εταιρει|εμπορικ|ανωνυμ|βιομηχαν|βιοτεχν|επιχειρη|ιατρικ|εξοπλισμ|μηχανημ|τεχνολογ|νοσοκομ|εργαστηρ|ανταλλακτικ|ομιλ|γραφει|προμηθει|συστημ|φυσικοθεραπε|αποκαταστασ|παθολογ|ογκολ|χειρουργ|καρδιολογ|ακτινολογ|διευθυντ|καρτεσ|καρτα|επικοινωνι|παροχ|πελατ|προιον|services|solutions|company|limited|international|information|medical|equipment|technology|hospital)/i;
+  const ROLE_WORDS = /(καθηγητ|παιδιατρ|νευρολογ|αναπτυξιολογ|professor|neurolog|pediatric|paediatric|τεχνικ|μηχανικ|υπευθυν|πωλητ|πωλησε|διευθυντ|προισταμ|παθολογ|ογκoλογ|ογκολoγ|ογκολo|ογκολ|ιατρ|χειρουργ|καρδιολογ|ακτινολογ|βιοιατρ|service|engineer|technician|sales|manager|director|support|doctor|physician)/i;
   function looksLikeAddress(value) {
     const norm = nameNormalize(value).replace(/[,;]/g,' ');
     return /\d/.test(value) || NAME_ADDRESS_WORDS.test(norm) || NAME_ADDRESS_PLACES.test(norm);
@@ -460,6 +460,9 @@
     const hasDoctorTitle=/^(?:δρ|δρς|dr|doctor)\.?\s+/iu.test(value);
     if(hasDoctorTitle) value=value.replace(/^(?:δρ|δρς|dr|doctor)\.?\s+/iu,'').trim();
     if (value.length < 7 || value.length > 56 || looksLikeAddress(value)) return null;
+    // OCR 12: οι γραμμές ειδικοτήτων (Καθηγητής Παιδιατρικής κ.λπ.)
+    // δεν είναι ποτέ προσωπικά ονόματα, ακόμη κι αν έχουν δύο λέξεις.
+    if (/\b(?:καθηγητ\p{L}*|παιδιατρ\p{L}*|νευρολογ\p{L}*|αναπτυξιολογ\p{L}*|professor|neurology|pediatrics|paediatrics)\b/iu.test(nameNormalize(value))) return null;
     if (/@|www\.|https?:|\b(?:fax|tel|mobile|email)\b/i.test(value)) return null;
     const norm=nameNormalize(value);
     if (NAME_NONPERSON.test(norm) || /(?:^|\s)(?:ae|a\.?e\.?|epe|ike|ltd|inc|a\.?b\.?e\.?)(?:$|\s)/i.test(norm)) return null;
@@ -473,6 +476,7 @@
     if (letters<8 || greek/letters<.5) return null;
     let score = words.length===2 ? 5.1 : words.length===3 ? 4.6 : 3.8;
     if (hasDoctorTitle) score += 3.4;
+    if (/^(?:[\p{L}]{3,})\s+[\p{L}]\.\s+[\p{L}]{3,}$/u.test(value)) score += 2.6; // Όνομα Α. Επώνυμο
     if (index<4) score += 2.1-index*.35;
     if (index>=7) score -= .6;
     const previous=nameNormalize(lines[index-1]||'');
@@ -545,8 +549,8 @@
   const COMPANY_JOB = /(?:^|\s)(?:τεχνικος|μηχανικος|υπευθυνος|πωλητης|διευθυντης|παθολογος|ογκoλογος|ογκολoγος|ιατρος|secretary|technician|engineer|manager|director|doctor|physician)(?:$|\s)/i;
   // Στελέχη, ειδικότητες, ονόματα τμημάτων κ.λπ. δεν γίνονται εταιρείες
   // ακόμη και αν περιέχουν όρους όπως «κλινική» ή «νοσοκομείο».
-  const COMPANY_ROLE_LINE = /(?:^|\s)(?:διευθυντ\p{L}*|προισταμ\p{L}*|υπευθυν\p{L}*|παθολογ\p{L}*|ογκολ\p{L}*|καρδιολογ\p{L}*|χειρουργ\p{L}*|ιατρος|ιατροι|ιατρου|ιατρων|τεχνικος|μηχανικος|επιμελητ\p{L}*|επιβλεπ\p{L}*|director|manager|physician|doctor|head\s+of|chief\s+of)(?:$|\s)/iu;
-  const COMPANY_ORG_UNIT = /(?:^|\s)(?:τμημα|διευθυνση|γραμματεια|μονάδα|μοναδα|κλινικης|κλινικων|department|ward)(?:$|\s)/iu;
+  const COMPANY_ROLE_LINE = /(?:^|\s)(?:διευθυντ\p{L}*|προισταμ\p{L}*|υπευθυν\p{L}*|παθολογ\p{L}*|ογκολ\p{L}*|καθηγητ\p{L}*|παιδιατρ\p{L}*|νευρολογ\p{L}*|αναπτυξιολογ\p{L}*|καρδιολογ\p{L}*|χειρουργ\p{L}*|ιατρος|ιατροι|ιατρου|ιατρων|τεχνικος|μηχανικος|επιμελητ\p{L}*|επιβλεπ\p{L}*|director|manager|physician|doctor|head\s+of|chief\s+of|professor|neurologist|pediatrician|paediatrician|phd)(?:$|\s)/iu;
+  const COMPANY_ORG_UNIT = /(?:^|\s)(?:τμημα|διευθυνση|γραμματεια|μονάδα|μοναδα|κλινικης|κλινικων|πανεπιστημι\p{L}*|α\.?π\.?θ\.?|department|faculty|university|ward)(?:$|\s)/iu;
   function readableCompanyLine(value) {
     const letters=(value.match(/\p{L}/gu)||[]);
     if(letters.length<4)return false;
@@ -585,6 +589,13 @@
     // μοιάζουν περισσότερο με άνθρωπο παρά με brand.
     if(!strong&&!industry&&!explicitlyLabeled&&/^(?:[A-Z][a-z]+\s+){1,2}[A-Z][a-z]+$/.test(value))return null;
     if(recognizedNames.some(n=>nameNormalize(n)===norm))return null;
+    // Το «Δημήτριος Ι. Ζαφειρίου» μπορεί να έχει αναγνωριστεί μόνο
+    // στο αγγλικό πέρασμα και να μην είναι στη λίστα ονομάτων.
+    // Η τυπική δομή Όνομα + αρχικό + Επώνυμο δεν είναι επωνυμία εταιρείας.
+    if(!strong&&!industry&&!explicitlyLabeled &&
+      /^(?:[\p{L}]{3,})\s+[\p{L}]\.?\s+[\p{L}]{3,}$/u.test(value)) return null;
+    if(!strong&&!industry&&!explicitlyLabeled &&
+      /(?:καθηγητ|παιδιατρ|νευρολογ|αναπτυξιολογ|professor|neurolog|pediatric|paediatric|phd|md\b)/i.test(norm)) return null;
     // Προστατεύει ιδιαίτερα από ονοματεπώνυμα στον τίτλο της κάρτας.
     const asPerson=scoreNameCandidate(value,index,lines);
     if(asPerson?.score>=6.3&&!strong&&!industry&&!explicitlyLabeled)return null;
@@ -634,7 +645,10 @@
     const target=document.getElementById('companySuggestions');
     if(!target)return;
     target.replaceChildren();
-    const suggestions=candidates.filter(c=>c.score>=4.7).slice(0,5);
+    const suggestions=candidates.filter(c=>c.score>=4.7 && (
+      COMPANY_STRONG.test(nameNormalize(c.name)) || COMPANY_TERMS.test(nameNormalize(c.name)) ||
+      /^(?:[Α-ΩΆΈΉΊΌΎΏ]{4,}(?:\s+[Α-ΩΆΈΉΊΌΎΏ]{3,}){0,2})$/u.test(c.name)
+    )).slice(0,5);
     if(!suggestions.length){
       const hint=document.createElement('div');hint.className='hint';
       hint.textContent='Δεν διαβάστηκε αξιόπιστα επωνυμία. Αν το λογότυπο είναι γραφικό, συμπλήρωσε την εταιρεία χειροκίνητα.';
@@ -680,6 +694,36 @@
     } finally {URL.revokeObjectURL(url);}
   }
 
+  // OCR 12: Εφεδρικό πέρασμα με αγγλικό μοντέλο στο κάτω μισό της κάρτας
+  // μόνο όταν λείπει κινητό ή η διεύθυνση email είναι ύποπτη.
+  async function prepareContactRegion(blob) {
+    const url=URL.createObjectURL(blob);
+    try {
+      const img=await new Promise((resolve,reject)=>{
+        const el=new Image();el.onload=()=>resolve(el);
+        el.onerror=()=>reject(new Error('Αδυναμία ανάγνωσης περιοχής επικοινωνίας'));
+        el.src=url;
+      });
+      const width=img.naturalWidth, y=Math.floor(img.naturalHeight*.44);
+      const height=Math.max(1,img.naturalHeight-y);
+      const scale=Math.min(2,Math.max(1,2300/Math.max(width,height)));
+      const cv=document.createElement('canvas');
+      cv.width=Math.max(1,Math.round(width*scale));
+      cv.height=Math.max(1,Math.round(height*scale));
+      const ctx=cv.getContext('2d',{alpha:false});
+      ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
+      ctx.filter='grayscale(1) contrast(1.22)';
+      ctx.drawImage(img,0,y,width,height,0,0,cv.width,cv.height);
+      return await new Promise((resolve,reject)=>cv.toBlob(b=>b?resolve(b):reject(new Error('Αδυναμία προετοιμασίας επικοινωνίας')),'image/png'));
+    } finally {URL.revokeObjectURL(url);}
+  }
+  const emailQuality = value => {
+    const email=String(value||'').trim().toLowerCase();
+    if(!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(email))return 0;
+    const tld=email.split('.').at(-1);
+    return /^(gr|com|org|net|edu|eu|gov|info|io|uk|de|fr|co|us)$/i.test(tld)?3:1;
+  };
+
   async function processOCR() {
     if (!draft?.photoBlob || ocrRunning) return;
     syncDraft(); ocrRunning=true;
@@ -723,6 +767,24 @@
       }
       const grParsed = parseCard(greekText);
       const parsed = {...mixedParsed};
+      let contactText='';
+      if(!parsed.mobile || emailQuality(parsed.email)<3) {
+        try {
+          setOCRStatus('Έλεγχος κινητού και email στο κάτω μέρος…');
+          const contactRegion=await prepareContactRegion(draft.photoBlob);
+          await worker.reinitialize('eng',1);
+          await worker.setParameters({
+            tessedit_pageseg_mode:Tess.PSM.SPARSE_TEXT,
+            preserve_interword_spaces:'1',user_defined_dpi:'300'
+          });
+          contactText=(await worker.recognize(contactRegion)).data?.text||'';
+          const contactParsed=parseCard(contactText);
+          if(contactParsed.mobile && !parsed.mobile)parsed.mobile=contactParsed.mobile;
+          if(emailQuality(contactParsed.email)>emailQuality(parsed.email))parsed.email=contactParsed.email;
+          // Αν το email έχει αμφίβολο TLD, δεν το συμπληρώνουμε σιωπηλά.
+          if(emailQuality(parsed.email)<3)parsed.email='';
+        } catch(contactErr) {console.warn('Contact-region OCR fallback',contactErr);}
+      }
       const nameCandidates = mergeNameCandidates(bilingual,greekText);
       // Όταν δεν υπάρχει αξιόπιστο όνομα, αφήνουμε κενό αντί να βάζουμε διεύθυνση.
       parsed.name = nameCandidates[0]?.score>=6.3 ? nameCandidates[0].name : '';
@@ -765,7 +827,8 @@
       // Η ίδια τηλεφωνική γραμμή μπορεί να αναγνωρίζεται με ή χωρίς ετικέτα FAX.
       // Η παρουσία σαφούς ετικέτας σε ΕΣΤΩ ΕΝΑ πέρασμα υπερισχύει οριστικά.
       const faxNumbers = new Set([...(mixedParsed.faxes||[]),...(grParsed.faxes||[])]);
-      const combinedPhones = [...new Set([...(mixedParsed.landlines||[]), ...(grParsed.landlines||[])])].filter(p=>!faxNumbers.has(p)).slice(0,6);
+      const commonPhoneFax=new Set([...(mixedParsed.sharedPhoneFax||[]),...(grParsed.sharedPhoneFax||[])]);
+      const combinedPhones = [...new Set([...(mixedParsed.landlines||[]), ...(grParsed.landlines||[])])].filter(p=>!faxNumbers.has(p)||commonPhoneFax.has(p)).slice(0,6);
       parsed.phone = combinedPhones.join(' / ');
       parsed.fax = [...faxNumbers].join(' / ');
       if (!parsed.mobile && grParsed.mobile) parsed.mobile = grParsed.mobile;
@@ -773,9 +836,14 @@
 
       // Κρατάμε τις χειροκίνητες διορθώσεις. Αλλά προφανείς διευθύνσεις που
       // μπήκαν στο «Όνομα» από παλιό OCR μπορούν να αντικατασταθούν.
-      if (parsed.name && looksLikeAddress(draft.name||'')) draft.name = parsed.name;
+      if (parsed.name && (looksLikeAddress(draft.name||'') ||
+        /(?:καθηγητ|παιδιατρ|νευρολογ|αναπτυξιολογ|professor|neurology)/i.test(nameNormalize(draft.name||'')))) draft.name = parsed.name;
       // Παλιό OCR έβαζε ως «Εταιρεία» το domain (π.χ. Doctor-barbounis).
       // Το διορθώνουμε μόνο όταν υπάρχει σαφής εταιρεία πάνω στην κάρτα.
+      if (draft.company && !COMPANY_STRONG.test(nameNormalize(draft.company)) &&
+        !COMPANY_TERMS.test(nameNormalize(draft.company)) &&
+        (/(?:καθηγητ|παιδιατρ|νευρολογ|professor|developmental)/i.test(nameNormalize(draft.company)) ||
+         /^(?:[\p{L}]{3,})\s+[\p{L}]\.?\s+[\p{L}]{3,}$/u.test(draft.company))) draft.company='';
       if (parsed.company && draft.company && draft.website) {
         const derived = draft.website.replace(/^https?:\/\//i,'').replace(/^www\./i,'').split('.')[0];
         if (nameNormalize(draft.company) === nameNormalize(derived)) draft.company = parsed.company;
@@ -786,10 +854,10 @@
       // μόνο αριθμούς που ΕΠΙΒΕΒΑΙΩΘΗΚΑΝ ως fax από το τρέχον OCR.
       if(faxNumbers.size) {
         for(const number of faxNumbers)
-          if(phoneNumbersIn(draft.phone).includes(number)) draft.phone=removePhoneFromFixed(draft.phone,number);
+          if(!commonPhoneFax.has(number) && phoneNumbersIn(draft.phone).includes(number)) draft.phone=removePhoneFromFixed(draft.phone,number);
         if(!String(draft.fax||'').trim()) draft.fax=parsed.fax;
       }
-      draft.rawText = bilingual.trim() + (greekText.trim() ? '\n\n--- Ελληνική ανάγνωση ---\n' + greekText.trim() : '') + (logoText.trim() ? '\n\n--- Ανάγνωση λογότυπου ---\n' + logoText.trim() : '');
+      draft.rawText = bilingual.trim() + (greekText.trim() ? '\n\n--- Ελληνική ανάγνωση ---\n' + greekText.trim() : '') + (contactText.trim() ? '\n\n--- Ανάγνωση στοιχείων επικοινωνίας ---\n' + contactText.trim() : '') + (logoText.trim() ? '\n\n--- Ανάγνωση λογότυπου ---\n' + logoText.trim() : '');
       applyDraftFields();
       showFaxSuggestions();
       setOCRStatus(bilingual.trim() || greekText.trim()
@@ -822,6 +890,7 @@
     const landlines = [];
     const mobiles = [];
     const faxes = [];
+    const sharedPhoneFax = new Set(); // Ένδειξη T/F: κοινός αριθμός τηλεφώνου/fax
     let awaitingFax = 0;
     lines.forEach(line => {
       const phones=[...line.matchAll(phonePattern)];
@@ -838,6 +907,12 @@
       for(const hit of phones) {
         const value=normalizedGreekPhone(hit[0]);
         if(!value) continue;
+        // Στο T/F: 2310... ο ίδιος αριθμός χρησιμοποιείται και για Fax.
+        const sharedLabel=/\b(?:T\s*\/\s*F|Τ\s*\/\s*Φ)\s*[:.]?/iu.test(line.slice(0,hit.index));
+        if (sharedLabel && value.startsWith('2') && !sharedPhoneFax.size) {
+          sharedPhoneFax.add(value);
+          if(!faxes.includes(value))faxes.push(value);
+        }
         const before=markers.filter(m=>m.index<hit.index);
         const after=markers.filter(m=>m.index>hit.index);
         const lastBefore=before.at(-1);
@@ -861,12 +936,13 @@
       awaitingFax = lastFax && !numbersAfterFax ? 2 : 0;
     });
     // Το fax δεν παραμένει στη λίστα των σταθερών όταν υπάρχει σαφής ετικέτα.
-    const filteredLandlines=landlines.filter(n=>!faxes.includes(n));
+    const filteredLandlines=landlines.filter(n=>!faxes.includes(n) || sharedPhoneFax.has(n));
     if(mobiles.length) result.mobile=mobiles[0];
     if(filteredLandlines.length) result.phone=filteredLandlines.join(' / ');
     if(faxes.length) result.fax=faxes.join(' / ');
     result.landlines=filteredLandlines;
     result.faxes=faxes;
+    result.sharedPhoneFax=[...sharedPhoneFax];
 
     // Διεύθυνση: αναγνωρίζουμε ξεχωριστά οδό/αριθμό και Τ.Κ./πόλη.
     // Δεν θεωρούμε τη διεύθυνση ονοματεπώνυμο.
@@ -881,11 +957,14 @@
       /[\p{L}]/u.test(line) && !/(?:τηλ|κιν|fax|φ[αά]ξ|@)/iu.test(line));
     if (streetLine) result.address=streetLine+(zipLine && zipLine!==streetLine ? ', '+zipLine : '');
     else if (zipLine) result.address=zipLine;
-    const role=lines.find(l=>/(?:^|[^\p{L}])(τεχνικ[οό]ς|τεχνικ[ηή]|μηχανικ[οό]ς|πωλητ[ηή]ς|υπε[υύ]θυνος|παθολ[οό]γος|ογκολ[οό]γος|ιατρ[οό]ς|διευθυντ[ηή]ς|service|engineer|technician|doctor|physician)(?=$|[^\p{L}])/iu.test(l));
+    // OCR 12: Ιδιότητα, ιδίως ακαδημαϊκοί τίτλοι δίπλα στο ονοματεπώνυμο.
+    const role=lines.find(l=>/(?:^|[^\p{L}])(καθηγητ[ηή]ς|καθηγητρια|παιδιατρ[οό]ς|τεχνικ[οό]ς|τεχνικ[ηή]|μηχανικ[οό]ς|πωλητ[ηή]ς|υπε[υύ]θυνος|παθολ[οό]γος|ογκολ[οό]γος|ιατρ[οό]ς|διευθυντ[ηή]ς|service|engineer|technician|doctor|physician|professor)(?=$|[^\p{L}])/iu.test(l));
     if(role) {
       const i=lines.indexOf(role);
       const next=lines[i+1]||'';
-      result.role = /παθολ[οό]γος/iu.test(role) && /ογκολ[οό]γος/iu.test(next)
+      if(/καθηγητ/iu.test(role) && /(?:νευρολογ|αναπτυξιολογ|α\.?π\.?θ\.?)/iu.test(next) && !looksLikeAddress(next))
+        result.role=role+', '+next;
+      else result.role = /παθολ[οό]γος/iu.test(role) && /ογκολ[οό]γος/iu.test(next)
         ? 'Παθολόγος – Ογκολόγος' : role;
     }
     // Το τελικό όνομα προκύπτει από ελεγμένες υποψηφιότητες και τις δύο
