@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="el">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#10304b">
+  <meta name="description" content="Ψηφιακό μητρώο επαγγελματικών καρτών για την Τεχνική Υπηρεσία του Γ.Ν. Βέροιας.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Κάρτες ΓΝΒ">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="assets/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+  <title>Επαγγελματικές Κάρτες • Γ.Ν. Βέροιας</title>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand-logo" aria-hidden="true">ΓΝ<span>+</span></div>
+      <div class="brand-copy"><span class="eyebrow">ΓΕΝΙΚΟ ΝΟΣΟΚΟΜΕΙΟ ΒΕΡΟΙΑΣ</span><strong>Κάρτες Συνεργατών</strong><span class="subbrand">Τεχνική Υπηρεσία</span></div>
+      <button class="icon-btn" type="button" id="headerSettings" title="Ρυθμίσεις" aria-label="Ρυθμίσεις"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06-1.83 1.83-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.52V20h-2.6v-.16a1.65 1.65 0 0 0-1-1.52 1.65 1.65 0 0 0-1.82.33l-.06.06-1.83-1.83.06-.06A1.65 1.65 0 0 0 8.16 15a1.65 1.65 0 0 0-1.52-1H6.5v-2.6h.14a1.65 1.65 0 0 0 1.52-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06 1.83-1.83.06.06a1.65 1.65 0 0 0 1.82.33 1.65 1.65 0 0 0 1-1.52V5.5h2.6v.14a1.65 1.65 0 0 0 1 1.52 1.65 1.65 0 0 0 1.82-.33l.06-.06 1.83 1.83-.06.06a1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 0 1.52 1h.16v2.6h-.16a1.65 1.65 0 0 0-1.52 1Z"/></svg></button>
+    </header>
+    <main id="mainContent" tabindex="-1"><div class="loading">Φόρτωση μητρώου…</div></main>
+    <nav class="bottom-nav" aria-label="Κεντρική πλοήγηση">
+      <button type="button" class="nav-item active" data-view="list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/></svg><span>Κάρτες</span></button>
+      <button type="button" class="nav-item primary-nav" data-view="new"><span class="nav-plus">+</span><span>Νέα κάρτα</span></button>
+      <button type="button" class="nav-item" data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4h14v16H5zM8 9h8M8 13h8M8 17h5"/></svg><span>Αρχείο</span></button>
+    </nav>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js" defer></script>
+</body>
+</html>

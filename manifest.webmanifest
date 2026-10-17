@@ -1,0 +1,16 @@
+{
+  "name": "Επαγγελματικές Κάρτες — Γ.Ν. Βέροιας",
+  "short_name": "Κάρτες ΓΝΒ",
+  "description": "Ψηφιακό μητρώο επαγγελματικών καρτών συνεργατών της Τεχνικής Υπηρεσίας",
+  "lang": "el",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#f3f6fa",
+  "theme_color": "#10304b",
+  "icons": [
+    {"src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}
