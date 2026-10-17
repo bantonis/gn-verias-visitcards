@@ -106,8 +106,8 @@
     draft.assignments = dataArray(draft.assignments).length ? draft.assignments : [{department:'',equipment:''}];
     navActive(id ? 'list' : 'new');
     main.innerHTML = `<div class="page-head"><button type="button" class="back-btn" id="backList" aria-label="Επιστροφή">‹</button><div><h1 class="page-title">${id?'Επεξεργασία κάρτας':'Νέα επαγγελματική κάρτα'}</h1><div class="sub">${id?'Διόρθωσε τα στοιχεία ή πρόσθεσε παρατηρήσεις':'Αυτόματη αναγνώριση και καταχώριση'}</div></div></div>
-      <section class="panel"><h2>01 · Φωτογραφία κάρτας</h2><div class="photo-area" id="photoArea">${previewHTML()}</div><div class="photo-actions"><button type="button" class="btn btn-primary" id="takePhoto">📷 Φωτογράφιση</button><button type="button" class="btn btn-outline" id="choosePhoto">▧ Από συλλογή</button></div><input class="file-input" type="file" accept="image/*" capture="environment" id="cameraInput"><input class="file-input" type="file" accept="image/*" id="galleryInput"><div id="ocrStatus" class="ocr-bar ${draft.photoBlob?'':'hidden'}">${draft.photoBlob?'Μπορείς να επαναλάβεις την αναγνώριση αν χρειάζεται.':' '}<br><button class="btn btn-outline" id="retryOCR" type="button" ${!draft.photoBlob?'disabled':''}>↻ Αναγνώριση κειμένου</button></div><p class="hint">Έκδοση OCR 9: κανονική κάμερα POCO και αυτόματη περικοπή της κάρτας πριν από το OCR. Διόρθωσε το πλαίσιο περικοπής με το δάχτυλο αν χρειάζεται. Διατηρούνται οι δύο αναγνώσεις (ελληνικά + αγγλικά και μόνο ελληνικά), με βελτίωση αντίθεσης. Κράτησε την κάρτα επίπεδη, χωρίς αντανακλάσεις, και γέμισε το κάδρο. Η αναγνώριση γίνεται στη συσκευή και απαιτεί διαδίκτυο για την αρχική λήψη των γλωσσών. Έλεγξε τα στοιχεία πριν από την αποθήκευση. Αν το όνομα είχε καταχωριστεί λάθος παλαιότερα, μπορείς να το σβήσεις και να ξαναπατήσεις OCR ή να διαλέξεις πρόταση.</p></section>
-      <section class="panel"><h2>02 · Στοιχεία επικοινωνίας <small>— διορθώνονται</small></h2><div class="field-grid">${field('name','Ονοματεπώνυμο',{full:true,placeholder:'Όνομα και επώνυμο'})}<div id="nameSuggestions" class="name-suggestion-block"></div>${field('company','Εταιρεία',{full:true,placeholder:'Εταιρεία / προμηθευτής'})}${field('role','Ιδιότητα',{full:true,placeholder:'π.χ. Τεχνικός'})}${field('phone','Σταθερά τηλέφωνα',{full:true,placeholder:'π.χ. 210 4809673 / 210 4809674'})}${field('mobile','Κινητό τηλέφωνο',{type:'tel'})}${field('fax','Fax',{type:'tel'})}<div id="faxSuggestions" class="fax-choice-block"></div>${field('address','Διεύθυνση',{full:true,placeholder:'Οδός, αριθμός, Τ.Κ., πόλη'})}${field('email','Email',{full:true,type:'email',autocomplete:'email'})}${field('website','Ιστοσελίδα',{full:true,placeholder:'www.example.gr'})}</div></section>
+      <section class="panel"><h2>01 · Φωτογραφία κάρτας</h2><div class="photo-area" id="photoArea">${previewHTML()}</div><div class="photo-actions"><button type="button" class="btn btn-primary" id="takePhoto">📷 Φωτογράφιση</button><button type="button" class="btn btn-outline" id="choosePhoto">▧ Από συλλογή</button></div><input class="file-input" type="file" accept="image/*" capture="environment" id="cameraInput"><input class="file-input" type="file" accept="image/*" id="galleryInput"><div id="ocrStatus" class="ocr-bar ${draft.photoBlob?'':'hidden'}">${draft.photoBlob?'Μπορείς να επαναλάβεις την αναγνώριση αν χρειάζεται.':' '}<br><button class="btn btn-outline" id="retryOCR" type="button" ${!draft.photoBlob?'disabled':''}>↻ Αναγνώριση κειμένου</button></div><p class="hint">Έκδοση OCR 10: κανονική κάμερα POCO και crop πριν από το OCR, με προτάσεις εταιρείας. Διόρθωσε το πλαίσιο περικοπής με το δάχτυλο αν χρειάζεται. Διατηρούνται οι δύο αναγνώσεις (ελληνικά + αγγλικά και μόνο ελληνικά), με βελτίωση αντίθεσης. Κράτησε την κάρτα επίπεδη, χωρίς αντανακλάσεις, και γέμισε το κάδρο. Η αναγνώριση γίνεται στη συσκευή και απαιτεί διαδίκτυο για την αρχική λήψη των γλωσσών. Έλεγξε τα στοιχεία πριν από την αποθήκευση. Αν το όνομα είχε καταχωριστεί λάθος παλαιότερα, μπορείς να το σβήσεις και να ξαναπατήσεις OCR ή να διαλέξεις πρόταση.</p></section>
+      <section class="panel"><h2>02 · Στοιχεία επικοινωνίας <small>— διορθώνονται</small></h2><div class="field-grid">${field('name','Ονοματεπώνυμο',{full:true,placeholder:'Όνομα και επώνυμο'})}<div id="nameSuggestions" class="name-suggestion-block"></div>${field('company','Εταιρεία',{full:true,placeholder:'Εταιρεία / προμηθευτής'})}<div id="companySuggestions" class="company-suggestion-block"></div>${field('role','Ιδιότητα',{full:true,placeholder:'π.χ. Τεχνικός'})}${field('phone','Σταθερά τηλέφωνα',{full:true,placeholder:'π.χ. 210 4809673 / 210 4809674'})}${field('mobile','Κινητό τηλέφωνο',{type:'tel'})}${field('fax','Fax',{type:'tel'})}<div id="faxSuggestions" class="fax-choice-block"></div>${field('address','Διεύθυνση',{full:true,placeholder:'Οδός, αριθμός, Τ.Κ., πόλη'})}${field('email','Email',{full:true,type:'email',autocomplete:'email'})}${field('website','Ιστοσελίδα',{full:true,placeholder:'www.example.gr'})}</div></section>
       <section class="panel"><h2>03 · Τμήματα & μηχανήματα</h2><p class="panel-tip">Ο ίδιος τεχνικός μπορεί να υποστηρίζει πολλά μηχανήματα σε διαφορετικά τμήματα.</p><div id="assignments">${assignmentsHTML()}</div><datalist id="knownDepartments"><option value="Τεχνική Υπηρεσία"><option value="Ακτινολογικό"><option value="Χειρουργεία"><option value="ΜΕΘ"><option value="Καρδιολογικό"><option value="ΤΕΠ"><option value="Εργαστήρια"><option value="Φυσικοθεραπεία"><option value="Μικροβιολογικό"><option value="Αποστείρωση"><option value="Αιμοδοσία"><option value="Πληροφορική"></datalist><button type="button" class="btn btn-outline" id="addAssignment">＋ Προσθήκη μηχανήματος</button></section>
       <section class="panel"><h2>04 · Παρατηρήσεις</h2><div class="field"><label for="f_notes">Σημειώσεις / οδηγίες επικοινωνίας / ιστορικό</label><textarea id="f_notes" placeholder="π.χ. Συντηρεί τον υπέρηχο του ΤΕΠ. Τηλεφωνούμε πρώτα στο κινητό…">${esc(draft.notes||'')}</textarea></div><p class="hint">Μη γράφεις στοιχεία ασθενών ή άλλες ευαίσθητες πληροφορίες.</p><details class="raw-details"><summary>Προβολή του κειμένου OCR (για έλεγχο)</summary><div class="field"><textarea id="f_rawText" placeholder="Το αναγνωρισμένο κείμενο εμφανίζεται εδώ…">${esc(draft.rawText||'')}</textarea></div></details></section>
       <div class="action-bar"><button type="button" class="btn btn-primary btn-block" id="saveCard">✓ Αποθήκευση κάρτας</button>${id?'<button type="button" class="btn btn-danger" id="deleteCard" aria-label="Διαγραφή κάρτας">🗑</button>':''}</div><div id="formError" class="error-inline" aria-live="polite"></div>${id?`<div class="last-save">Τελευταία ενημέρωση: ${esc(fmtDate(draft.updatedAt))}</div>`:''}`;
@@ -536,6 +536,84 @@
     target.appendChild(wrap);
   }
 
+  // OCR 10: Υποψήφιες επωνυμίες από όλο το αναγνωρισμένο κείμενο.
+  // Δεν χρησιμοποιούμε αυθαίρετα το domain ως εταιρεία ούτε τις γραμμές
+  // διεύθυνσης, τηλεφώνων ή ονοματεπωνύμων. Η αμφιβολία εμφανίζεται στον χρήστη.
+  const COMPANY_STRONG = /(?:^|\s)(?:α\.?\s*ε\.?|αβεε|ε\.?\s*π\.?\s*ε\.?|ι\.?\s*κ\.?\s*ε\.?|ο\.?\s*ε\.?|ε\.?\s*ε\.?|ltd\.?|limited|inc\.?|gmbh|s\.?a\.?|company|εταιρεια)(?=\s|$|[.,])/i;
+  const COMPANY_TERMS = /(?:medical|medic|hospital|clinic|health|healthcare|tech(?:nologies)?|systems|solutions|industr|group|engineering|equipment|electronic|diagnostic|laborator|automation|service\s+group|biomedical|μηχανηματ|συστηματ|ιατρικ|νοσοκομ|κλινικ|διαγνωστικ|βιοιατρικ|τεχνολογ|ηλεκτρονικ|εμπορικ|βιομηχαν|εξοπλισμ|εργαστηριακ|αντιπροσωπει)/i;
+  const COMPANY_GENERIC = /^(?:εταιρεια|company|λογοτυπο|logo|επαγγελματικη καρτα|τεχνικη υποστηριξη|τεχνικο τμημα|τμημα προμηθειων|επικοινωνια|στοιχεια επικοινωνιας|επικοινωνηστε μαζι μας|διευθυνση|website|ιστοσελιδα|email|παρατηρησεις|υπηρεσιες|προιοντα|γραφεια|office|contact|support|sales|fax|tel)$/i;
+  const COMPANY_JOB = /(?:^|\s)(?:τεχνικος|μηχανικος|υπευθυνος|πωλητης|διευθυντης|παθολογος|ογκoλογος|ογκολoγος|ιατρος|secretary|technician|engineer|manager|director|doctor|physician)(?:$|\s)/i;
+  function companyLineCandidate(raw, index, lines, recognizedNames=[]) {
+    const explicitlyLabeled=/^(?:εταιρ[εέ]ια|επωνυμ[ιί]α|company|organization|organisation|brand)\s*[:：-]/iu.test(raw);
+    const value=raw.replace(/^(?:εταιρ[εέ]ια|επωνυμ[ιί]α|company|organization|organisation|brand)\s*[:：-]\s*/iu,'').replace(/^[•·*\-\s]+/u,'').trim();
+    const norm=nameNormalize(value);
+    if(value.length<4 || value.length>75 || norm.length<4 || COMPANY_GENERIC.test(norm))return null;
+    if(/(?:@|www\.|https?:|\b(?:fax|τηλ|telephone|phone|mobile|κινητο|κωδικος)\b)/i.test(norm))return null;
+    if(/\d{3,}/.test(value)||looksLikeAddress(value)||!/[\p{L}]/u.test(value))return null;
+    if(/[<>\\={}\[\]]/.test(value))return null;
+    if(value.split(/\s+/).length>8)return null;
+    const strong=COMPANY_STRONG.test(norm);
+    const industry=COMPANY_TERMS.test(norm);
+    if((COMPANY_JOB.test(norm)||ROLE_WORDS.test(norm))&&!strong&&!industry)return null;
+    // Δύο ή τρία αγγλικά ονόματα Title Case, χωρίς ένδειξη εταιρείας,
+    // μοιάζουν περισσότερο με άνθρωπο παρά με brand.
+    if(!strong&&!industry&&!explicitlyLabeled&&/^(?:[A-Z][a-z]+\s+){1,2}[A-Z][a-z]+$/.test(value))return null;
+    if(recognizedNames.some(n=>nameNormalize(n)===norm))return null;
+    // Προστατεύει ιδιαίτερα από ονοματεπώνυμα στον τίτλο της κάρτας.
+    const asPerson=scoreNameCandidate(value,index,lines);
+    if(asPerson?.score>=6.3&&!strong&&!industry&&!explicitlyLabeled)return null;
+    if(/^(?:ΔΡ|DR)\.?\s+/iu.test(value))return null;
+    let score=2.7;
+    if(explicitlyLabeled)score+=5;
+    if(strong)score+=4.7;
+    if(industry)score+=3.4;
+    if(index<=2)score+=2.2;
+    else if(index<=5)score+=1.2;
+    if(value.split(/\s+/).length<=4)score+=.7;
+    const letters=(value.match(/\p{L}/gu)||[]).length;
+    const capitals=(value.match(/[Α-ΩΆΈΉΊΌΎΏA-Z]/g)||[]).length;
+    if(letters>=5 && capitals/letters>.74)score+=1.2;
+    if(/[&®™]/.test(value))score+=.4;
+    return {name:value, score:Math.round(score*100)/100};
+  }
+  function extractCompanyCandidates(text, recognizedNames=[]) {
+    const lines=String(text||'').replace(/[\u200B-\u200D]/g,'').split(/[\r\n]+/)
+      .map(l=>l.replace(/\s+/g,' ').trim()).filter(Boolean);
+    return lines.map((line,index)=>companyLineCandidate(line,index,lines,recognizedNames)).filter(Boolean);
+  }
+  function mergeCompanyCandidates(texts, recognizedNames=[]) {
+    const found=new Map();
+    texts.forEach((text,reading)=>extractCompanyCandidates(text,recognizedNames).forEach(c=>{
+      const key=nameNormalize(c.name);
+      const prev=found.get(key);
+      if(prev){prev.score=Math.max(prev.score,c.score);prev.readings.add(reading);}
+      else found.set(key,{...c,readings:new Set([reading])});
+    }));
+    return [...found.values()].map(c=>({name:c.name,score:c.score+(c.readings.size>1?1.4:0)}))
+      .sort((a,b)=>b.score-a.score).slice(0,5);
+  }
+  function showCompanySuggestions(candidates) {
+    const target=document.getElementById('companySuggestions');
+    if(!target)return;
+    target.replaceChildren();
+    const suggestions=candidates.filter(c=>c.score>=4.7).slice(0,5);
+    if(!suggestions.length)return;
+    const help=document.createElement('div');help.className='hint';
+    help.textContent='Πιθανές εταιρείες από την κάρτα — επίλεξε τη σωστή (το OCR μπορεί να κάνει λάθη):';
+    target.appendChild(help);
+    const wrap=document.createElement('div');wrap.className='company-suggestions';
+    for(const c of suggestions){
+      const btn=document.createElement('button');btn.type='button';btn.className='company-suggestion';
+      btn.textContent=c.name;
+      btn.addEventListener('click',()=>{
+        const field=document.getElementById('f_company');
+        if(field){field.value=c.name;draft.company=c.name;toast('Η εταιρεία ενημερώθηκε.');}
+      });
+      wrap.appendChild(btn);
+    }
+    target.appendChild(wrap);
+  }
+
   async function processOCR() {
     if (!draft?.photoBlob || ocrRunning) return;
     syncDraft(); ocrRunning=true;
@@ -583,6 +661,15 @@
       // Όταν δεν υπάρχει αξιόπιστο όνομα, αφήνουμε κενό αντί να βάζουμε διεύθυνση.
       parsed.name = nameCandidates[0]?.score>=6.3 ? nameCandidates[0].name : '';
       showNameSuggestions(nameCandidates);
+      const companyCandidates = mergeCompanyCandidates([bilingual,greekText], nameCandidates.map(c=>c.name));
+      // Αυτόματη συμπλήρωση μόνο αν η υποψήφια εταιρεία ξεχωρίζει καθαρά.
+      // Διαφορετικά αφήνουμε τον χρήστη να διαλέξει, όχι λάθος επωνυμία.
+      const topCompany=companyCandidates[0];
+      const runnerUp=companyCandidates[1];
+      if(topCompany && topCompany.score>=8.3 && (!runnerUp || topCompany.score-runnerUp.score>=1.1) &&
+         (topCompany.name.trim().split(/\s+/).length>1 || COMPANY_STRONG.test(nameNormalize(topCompany.name)) || COMPANY_TERMS.test(nameNormalize(topCompany.name))))
+        parsed.company=topCompany.name;
+      showCompanySuggestions(companyCandidates);
       if (grParsed.role && (!parsed.role || (grParsed.role.match(/[Α-Ωα-ω]/g)||[]).length > (parsed.role.match(/[Α-Ωα-ω]/g)||[]).length))
         parsed.role = grParsed.role;
       if (!parsed.company && grParsed.company) parsed.company = grParsed.company;
@@ -716,15 +803,9 @@
     // αναγνώσεις OCR στο processOCR — όχι από την πρώτη δίλεξη γραμμή.
     // Η διεύθυνση ιστοσελίδας δεν ταυτίζεται πάντα με την εταιρεία.
     // Προτιμάμε σαφές όνομα από το λογότυπο/κείμενο της επαγγελματικής κάρτας.
-    if (lines.some(l=>/\bMETROPOLITAN\b/i.test(l))) {
-      result.company='Metropolitan Hospital';
-    } else {
-      const orgLine=lines.find(l=>
-        /(hospital|medical|technologies|solutions|νοσοκομει|κλινικ|εταιρει|a\.?e\.?\b)/i.test(nameNormalize(l)) &&
-        !/(ΔΙΕΥΘΥΝ|ΠΑΘΟΛΟΓ|ΟΓΚΟΛΟΓ|ΤΗΛ|ΚΙΝ|FAX|@|www\.|https?:)/iu.test(l) &&
-        l.length>=5 && l.length<=65 && !/\d{3,}/.test(l));
-      if(orgLine) result.company=orgLine;
-    }
+    // Παλαιότερη αναγνώριση ειδικών επωνυμιών διατηρείται ως εφεδρεία.
+    // Η τελική επιλογή γίνεται από score/προτάσεις του OCR 10.
+    if (lines.some(l=>/\bMETROPOLITAN\b/i.test(l))) result.company='Metropolitan Hospital';
     return result;
   }
   async function saveForm() {

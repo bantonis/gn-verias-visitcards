@@ -20,3 +20,10 @@
 .crop-corner.tl{top:-14px;left:-14px;cursor:nwse-resize}.crop-corner.tr{top:-14px;right:-14px;cursor:nesw-resize}.crop-corner.bl{bottom:-14px;left:-14px;cursor:nesw-resize}.crop-corner.br{bottom:-14px;right:-14px;cursor:nwse-resize}
 .crop-tools,.crop-actions{display:flex;gap:8px;justify-content:center}.crop-tools .btn{flex:1;padding:11px 5px}.crop-actions{margin-top:10px}.crop-actions .btn{flex:1;padding:13px 5px}.crop-actions #cropConfirm{flex:1.35}
 @media (max-width:420px){.card-crop-overlay{padding-left:5px;padding-right:5px}.card-crop-dialog{padding:12px 10px}.crop-explainer{font-size:11px}.crop-tools .btn,.crop-actions .btn{font-size:12px}}
+
+/* OCR 10: διακριτικές, προαιρετικές προτάσεις εταιρείας */
+.company-suggestion-block:empty{display:none}
+.company-suggestion-block{grid-column:1/-1;min-width:0;margin:-6px 0 8px}
+.company-suggestions{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 2px}
+.company-suggestion{font:inherit;font-size:.9rem;line-height:1.3;color:#10304b;background:#eff6fd;border:1px solid #b4cde2;border-radius:11px;padding:9px 11px;cursor:pointer;text-align:left;overflow-wrap:anywhere}
+.company-suggestion:focus-visible{outline:2px solid #0b6faf;outline-offset:2px}
