@@ -19,6 +19,12 @@
   const initials = text => (String(text || '?').trim().split(/\s+/).slice(0, 2).map(s => s[0]?.toLocaleUpperCase('el-GR') || '').join('') || '?');
   const stripForSearch = str => String(str || '').toLocaleLowerCase('el').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   const safePhone = str => String(str || '').replace(/[^\d+]/g, '');
+  // Για περισσότερα από ένα σταθερά, καλούμε μόνο το πρώτο, όχι τη συνένωσή τους.
+  const firstCallablePhone = str => {
+    const value = String(str || '');
+    const match = value.match(/(?:\+?30[\s.()-]*)?(?:69(?:[\s.()-]*\d){8}|2(?:[\s.()-]*\d){9})/);
+    return safePhone(match ? match[0] : value.split(/[/;,|]/)[0]);
+  };
   const dataArray = v => Array.isArray(v) ? v : [];
   const nextId = () => (crypto?.randomUUID?.() || `card-${Date.now()}-${Math.random().toString(16).slice(2)}`);
 
@@ -57,7 +63,7 @@
     const list = document.getElementById('contactsList');
     if (!list) return;
     const needle = stripForSearch(phrase.trim());
-    const selected = contacts.filter(c => stripForSearch([c.name,c.company,c.role,c.phone,c.mobile,c.email,c.website,c.notes,c.rawText,...dataArray(c.assignments).flatMap(a=>[a.department,a.equipment])].join(' ')).includes(needle));
+    const selected = contacts.filter(c => stripForSearch([c.name,c.company,c.role,c.phone,c.mobile,c.fax,c.address,c.email,c.website,c.notes,c.rawText,...dataArray(c.assignments).flatMap(a=>[a.department,a.equipment])].join(' ')).includes(needle));
     document.getElementById('resultsCount').textContent = `${selected.length} από ${contacts.length} καταχωρίσεις`;
     if (!selected.length) {
       list.innerHTML = `<div class="empty-state"><span class="empty-icon">${contacts.length ? '⌕' : '▤'}</span><h3>${contacts.length ? 'Δεν βρέθηκαν κάρτες' : 'Το μητρώο είναι κενό'}</h3><p>${contacts.length ? 'Δοκίμασε διαφορετική λέξη ή αναζήτησε το τμήμα ή το μηχάνημα.' : 'Πάτησε «Νέα καταχώριση» για να φωτογραφίσεις την πρώτη κάρτα.'}</p>${!contacts.length?'<button type="button" class="btn btn-primary" id="emptyAdd">Προσθήκη κάρτας</button>':''}</div>`;
@@ -68,8 +74,11 @@
       let imageHTML = `<div class="contact-thumb contact-initials">${esc(initials(c.name||c.company))}</div>`;
       if (c.photoBlob instanceof Blob) { const u = URL.createObjectURL(c.photoBlob); listURLs.push(u); imageHTML = `<img class="contact-thumb" src="${u}" alt="Κάρτα του ${esc(c.name||c.company)}">`; }
       const desc = dataArray(c.assignments).slice(0,2).map(a => `${a.department||'Τμήμα'}${a.equipment?' · '+a.equipment:''}`).join(' / ');
-      const tel = safePhone(c.mobile||c.phone);
-      return `<article class="contact-card" tabindex="0" role="button" data-id="${esc(c.id)}" aria-label="Επεξεργασία ${esc(c.name||c.company)}">${imageHTML}<div class="contact-info"><h3>${esc(c.name||c.company||'Χωρίς όνομα')}</h3><div class="company">${esc(c.company||c.role||'Συνεργάτης')}</div><div class="contact-meta">${esc(desc||c.role||'Δεν έχουν δηλωθεί τμήματα / μηχανήματα')}</div><div class="quick-actions">${tel?`<a href="tel:${tel}" aria-label="Κλήση ${esc(c.name)}">☎ Κλήση</a>`:''}${c.email?`<a href="mailto:${encodeURIComponent(c.email).replace('%40','@')}" aria-label="Email ${esc(c.name)}">✉ Email</a>`:''}</div></div><span class="contact-arrow" aria-hidden="true">›</span></article>`;
+      const mobileCall = firstCallablePhone(c.mobile);
+      const fixedCalls = [...new Set(String(c.phone||'').split(/[/;,|]/).map(firstCallablePhone).filter(Boolean))].slice(0,3);
+      const callLinks = [mobileCall?`<a href="tel:${mobileCall}">📱 Κινητό</a>`:'',
+        ...fixedCalls.map((number,i)=>`<a href="tel:${number}">☎ Σταθερό${fixedCalls.length>1?' '+(i+1):''}</a>`)];
+      return `<article class="contact-card" tabindex="0" role="button" data-id="${esc(c.id)}" aria-label="Επεξεργασία ${esc(c.name||c.company)}">${imageHTML}<div class="contact-info"><h3>${esc(c.name||c.company||'Χωρίς όνομα')}</h3><div class="company">${esc(c.company||c.role||'Συνεργάτης')}</div><div class="contact-meta">${esc(desc||c.role||'Δεν έχουν δηλωθεί τμήματα / μηχανήματα')}</div><div class="quick-actions">${callLinks.join('')}${c.email?`<a href="mailto:${encodeURIComponent(c.email).replace('%40','@')}" aria-label="Email ${esc(c.name)}">✉ Email</a>`:''}</div></div><span class="contact-arrow" aria-hidden="true">›</span></article>`;
     }).join('');
     list.querySelectorAll('.contact-card').forEach(card => {
       card.addEventListener('click', e => {if(!e.target.closest('a')) showForm(card.dataset.id);});
@@ -77,7 +86,7 @@
     });
   }
 
-  function newDraft() { return {id:null,name:'',company:'',role:'',phone:'',mobile:'',email:'',website:'',assignments:[{department:'',equipment:''}],notes:'',rawText:'',photoBlob:null,createdAt:null,updatedAt:null}; }
+  function newDraft() { return {id:null,name:'',company:'',role:'',phone:'',mobile:'',fax:'',address:'',email:'',website:'',assignments:[{department:'',equipment:''}],notes:'',rawText:'',photoBlob:null,createdAt:null,updatedAt:null}; }
   const field = (key,label,opts={}) => `<div class="field ${opts.full?'full':''}"><label for="f_${key}">${label}${opts.required?' <span class="badge-required">*</span>':''}</label><input id="f_${key}" name="${key}" type="${opts.type||'text'}" autocomplete="${opts.autocomplete||'off'}" placeholder="${esc(opts.placeholder||'')}" value="${esc(draft[key]||'')}"></div>`;
   function assignmentsHTML() {
     const rows = draft.assignments.length ? draft.assignments : [{department:'',equipment:''}];
@@ -94,8 +103,8 @@
     draft.assignments = dataArray(draft.assignments).length ? draft.assignments : [{department:'',equipment:''}];
     navActive(id ? 'list' : 'new');
     main.innerHTML = `<div class="page-head"><button type="button" class="back-btn" id="backList" aria-label="Επιστροφή">‹</button><div><h1 class="page-title">${id?'Επεξεργασία κάρτας':'Νέα επαγγελματική κάρτα'}</h1><div class="sub">${id?'Διόρθωσε τα στοιχεία ή πρόσθεσε παρατηρήσεις':'Αυτόματη αναγνώριση και καταχώριση'}</div></div></div>
-      <section class="panel"><h2>01 · Φωτογραφία κάρτας</h2><div class="photo-area" id="photoArea">${previewHTML()}</div><div class="photo-actions"><button type="button" class="btn btn-primary" id="takePhoto">📷 Φωτογράφιση</button><button type="button" class="btn btn-outline" id="choosePhoto">▧ Από συλλογή</button></div><input class="file-input" type="file" accept="image/*" capture="environment" id="cameraInput"><input class="file-input" type="file" accept="image/*" id="galleryInput"><div id="ocrStatus" class="ocr-bar ${draft.photoBlob?'':'hidden'}">${draft.photoBlob?'Μπορείς να επαναλάβεις την αναγνώριση αν χρειάζεται.':' '}<br><button class="btn btn-outline" id="retryOCR" type="button" ${!draft.photoBlob?'disabled':''}>↻ Αναγνώριση κειμένου</button></div><p class="hint">Έκδοση OCR 4: δύο αναγνώσεις (ελληνικά + αγγλικά και μόνο ελληνικά), με βελτίωση αντίθεσης. Κράτησε την κάρτα επίπεδη, χωρίς αντανακλάσεις, και γέμισε το κάδρο. Η αναγνώριση γίνεται στη συσκευή και απαιτεί διαδίκτυο για την αρχική λήψη των γλωσσών. Έλεγξε τα στοιχεία πριν από την αποθήκευση. Αν το όνομα είχε καταχωριστεί λάθος παλαιότερα, μπορείς να το σβήσεις και να ξαναπατήσεις OCR ή να διαλέξεις πρόταση.</p></section>
-      <section class="panel"><h2>02 · Στοιχεία επικοινωνίας <small>— διορθώνονται</small></h2><div class="field-grid">${field('name','Ονοματεπώνυμο',{full:true,placeholder:'Όνομα και επώνυμο'})}<div id="nameSuggestions" class="name-suggestion-block"></div>${field('company','Εταιρεία',{full:true,placeholder:'Εταιρεία / προμηθευτής'})}${field('role','Ιδιότητα',{full:true,placeholder:'π.χ. Τεχνικός'})}${field('phone','Σταθερό τηλέφωνο',{type:'tel'})}${field('mobile','Κινητό τηλέφωνο',{type:'tel'})}${field('email','Email',{full:true,type:'email',autocomplete:'email'})}${field('website','Ιστοσελίδα',{full:true,placeholder:'www.example.gr'})}</div></section>
+      <section class="panel"><h2>01 · Φωτογραφία κάρτας</h2><div class="photo-area" id="photoArea">${previewHTML()}</div><div class="photo-actions"><button type="button" class="btn btn-primary" id="takePhoto">📷 Φωτογράφιση</button><button type="button" class="btn btn-outline" id="choosePhoto">▧ Από συλλογή</button></div><input class="file-input" type="file" accept="image/*" capture="environment" id="cameraInput"><input class="file-input" type="file" accept="image/*" id="galleryInput"><div id="ocrStatus" class="ocr-bar ${draft.photoBlob?'':'hidden'}">${draft.photoBlob?'Μπορείς να επαναλάβεις την αναγνώριση αν χρειάζεται.':' '}<br><button class="btn btn-outline" id="retryOCR" type="button" ${!draft.photoBlob?'disabled':''}>↻ Αναγνώριση κειμένου</button></div><p class="hint">Έκδοση OCR 5: δύο αναγνώσεις (ελληνικά + αγγλικά και μόνο ελληνικά), με βελτίωση αντίθεσης. Κράτησε την κάρτα επίπεδη, χωρίς αντανακλάσεις, και γέμισε το κάδρο. Η αναγνώριση γίνεται στη συσκευή και απαιτεί διαδίκτυο για την αρχική λήψη των γλωσσών. Έλεγξε τα στοιχεία πριν από την αποθήκευση. Αν το όνομα είχε καταχωριστεί λάθος παλαιότερα, μπορείς να το σβήσεις και να ξαναπατήσεις OCR ή να διαλέξεις πρόταση.</p></section>
+      <section class="panel"><h2>02 · Στοιχεία επικοινωνίας <small>— διορθώνονται</small></h2><div class="field-grid">${field('name','Ονοματεπώνυμο',{full:true,placeholder:'Όνομα και επώνυμο'})}<div id="nameSuggestions" class="name-suggestion-block"></div>${field('company','Εταιρεία',{full:true,placeholder:'Εταιρεία / προμηθευτής'})}${field('role','Ιδιότητα',{full:true,placeholder:'π.χ. Τεχνικός'})}${field('phone','Σταθερά τηλέφωνα',{full:true,placeholder:'π.χ. 210 4809673 / 210 4809674'})}${field('mobile','Κινητό τηλέφωνο',{type:'tel'})}${field('fax','Fax',{type:'tel'})}${field('address','Διεύθυνση',{full:true,placeholder:'Οδός, αριθμός, Τ.Κ., πόλη'})}${field('email','Email',{full:true,type:'email',autocomplete:'email'})}${field('website','Ιστοσελίδα',{full:true,placeholder:'www.example.gr'})}</div></section>
       <section class="panel"><h2>03 · Τμήματα & μηχανήματα</h2><p class="panel-tip">Ο ίδιος τεχνικός μπορεί να υποστηρίζει πολλά μηχανήματα σε διαφορετικά τμήματα.</p><div id="assignments">${assignmentsHTML()}</div><datalist id="knownDepartments"><option value="Τεχνική Υπηρεσία"><option value="Ακτινολογικό"><option value="Χειρουργεία"><option value="ΜΕΘ"><option value="Καρδιολογικό"><option value="ΤΕΠ"><option value="Εργαστήρια"><option value="Φυσικοθεραπεία"><option value="Μικροβιολογικό"><option value="Αποστείρωση"><option value="Αιμοδοσία"><option value="Πληροφορική"></datalist><button type="button" class="btn btn-outline" id="addAssignment">＋ Προσθήκη μηχανήματος</button></section>
       <section class="panel"><h2>04 · Παρατηρήσεις</h2><div class="field"><label for="f_notes">Σημειώσεις / οδηγίες επικοινωνίας / ιστορικό</label><textarea id="f_notes" placeholder="π.χ. Συντηρεί τον υπέρηχο του ΤΕΠ. Τηλεφωνούμε πρώτα στο κινητό…">${esc(draft.notes||'')}</textarea></div><p class="hint">Μη γράφεις στοιχεία ασθενών ή άλλες ευαίσθητες πληροφορίες.</p><details class="raw-details"><summary>Προβολή του κειμένου OCR (για έλεγχο)</summary><div class="field"><textarea id="f_rawText" placeholder="Το αναγνωρισμένο κείμενο εμφανίζεται εδώ…">${esc(draft.rawText||'')}</textarea></div></details></section>
       <div class="action-bar"><button type="button" class="btn btn-primary btn-block" id="saveCard">✓ Αποθήκευση κάρτας</button>${id?'<button type="button" class="btn btn-danger" id="deleteCard" aria-label="Διαγραφή κάρτας">🗑</button>':''}</div><div id="formError" class="error-inline" aria-live="polite"></div>${id?`<div class="last-save">Τελευταία ενημέρωση: ${esc(fmtDate(draft.updatedAt))}</div>`:''}`;
@@ -116,11 +125,11 @@
   }
   function syncDraft() {
     if (!draft) return;
-    ['name','company','role','phone','mobile','email','website','notes','rawText'].forEach(k => { const el = document.getElementById('f_'+k); if(el) draft[k]=el.value; });
+    ['name','company','role','phone','mobile','fax','address','email','website','notes','rawText'].forEach(k => { const el = document.getElementById('f_'+k); if(el) draft[k]=el.value; });
     draft.assignments = [...document.querySelectorAll('[data-assignment]')].map(node => ({department:node.querySelector('[data-k="department"]').value, equipment:node.querySelector('[data-k="equipment"]').value}));
   }
   function applyDraftFields() {
-    ['name','company','role','phone','mobile','email','website','notes','rawText'].forEach(k => { const el = document.getElementById('f_'+k);if(el) el.value=draft[k]||''; });
+    ['name','company','role','phone','mobile','fax','address','email','website','notes','rawText'].forEach(k => { const el = document.getElementById('f_'+k);if(el) el.value=draft[k]||''; });
   }
   async function handlePhoto(file) {
     if (!file) return;
@@ -335,8 +344,14 @@
       if (grParsed.role && (!parsed.role || (grParsed.role.match(/[Α-Ωα-ω]/g)||[]).length > (parsed.role.match(/[Α-Ωα-ω]/g)||[]).length))
         parsed.role = grParsed.role;
       if (!parsed.company && grParsed.company) parsed.company = grParsed.company;
-      // Επιβεβαίωση τηλεφώνων από το καθαρά ελληνικό αποτέλεσμα, αν λείπουν.
-      for (const k of ['phone','mobile']) if (!parsed[k] && grParsed[k]) parsed[k] = grParsed[k];
+      // Δύο ή περισσότερα σταθερά: συνδυάζουμε τις δύο αναγνώσεις,
+      // χωρίς διπλές καταχωρίσεις και χωρίς να μπερδεύουμε το fax με το τηλέφωνο.
+      const faxNumbers = new Set([...(mixedParsed.faxes||[]),...(grParsed.faxes||[])]);
+      const combinedPhones = [...new Set([...(mixedParsed.landlines||[]), ...(grParsed.landlines||[])])].filter(p=>!faxNumbers.has(p)).slice(0,6);
+      if (combinedPhones.length) parsed.phone = combinedPhones.join(' / ');
+      parsed.fax = [...new Set([...(mixedParsed.faxes||[]),...(grParsed.faxes||[])])].join(' / ');
+      if (!parsed.mobile && grParsed.mobile) parsed.mobile = grParsed.mobile;
+      if (!parsed.address && grParsed.address) parsed.address = grParsed.address;
 
       // Κρατάμε τις χειροκίνητες διορθώσεις. Αλλά προφανείς διευθύνσεις που
       // μπήκαν στο «Όνομα» από παλιό OCR μπορούν να αντικατασταθούν.
@@ -347,7 +362,7 @@
         const derived = draft.website.replace(/^https?:\/\//i,'').replace(/^www\./i,'').split('.')[0];
         if (nameNormalize(draft.company) === nameNormalize(derived)) draft.company = parsed.company;
       }
-      for (const key of ['name','company','role','phone','mobile','email','website'])
+      for (const key of ['name','company','role','phone','mobile','fax','address','email','website'])
         if (!String(draft[key]||'').trim() && parsed[key]) draft[key]=parsed[key];
       draft.rawText = bilingual.trim() + (greekText.trim() ? '\n\n--- Ελληνική ανάγνωση ---\n' + greekText.trim() : '');
       applyDraftFields();
@@ -372,13 +387,49 @@
     const websiteLine=lines.find(l=>/^(?:https?:\/\/|www\.)/i.test(l));
     const site=websiteLine?.match(/(?:https?:\/\/)?(?:www\.)?[a-z0-9-]+\.(?:gr|com|eu|net|org)(?:\/[\w/.-]*)?/i);
     if(site) result.website=site[0];
-    // Εξαγωγή ελληνικών αριθμών: σταθερά αρχίζουν από 2, κινητά από 69.
-    const numberRE=/(?:\+?30[\s.-]*)?(?:69\d{2}|2\d{3})(?:[\s.\-]*\d){6}/g;
-    const found=(clean.match(numberRE)||[]).map(v=>v.replace(/[\s.\-]/g,''));
-    const uniq=[...new Set(found)].map(v=>v.startsWith('30')&&v.length===12?v.slice(2):v);
-    if(uniq.find(n=>n.startsWith('69')))result.mobile=uniq.find(n=>n.startsWith('69'));
-    if(uniq.find(n=>n.startsWith('2')))result.phone=uniq.find(n=>n.startsWith('2'));
-    if(!result.phone && uniq[0] && !result.mobile)result.phone=uniq[0];
+    // OCR 5: 10ψήφια ελληνικά τηλέφωνα με ή χωρίς κενά/παύλες,
+    // π.χ. «210 4809673» και «2104809673». Σε προηγούμενες εκδόσεις
+    // η ομάδα 2\d{3} δεν αναγνώριζε το κοινό «210 4809673».
+    const phonePattern = /(?<!\d)(?:(?:\+|00)30[\s.()\-]*)?(?:69(?:[\s.()\-]*\d){8}|2(?:[\s.()\-]*\d){9})(?!\d)/g;
+    const landlines = [];
+    const mobiles = [];
+    const faxes = [];
+    lines.forEach((line, index) => {
+      const prev = (lines[index-1]||'').trim();
+      const isFax = /(?:\bfax\b|φ[αά]ξ|φαχ|τηλεομοιοτυπ)/iu.test(line) ||
+        (/^(?:fax|φ[αά]ξ)\s*[:：-]?$/iu.test(prev) && !/[\p{L}]/u.test(line));
+      for (const hit of line.matchAll(phonePattern)) {
+        let value = hit[0].replace(/\D/g,'');
+        if (value.length===14 && value.startsWith('0030')) value=value.slice(4);
+        else if (value.length===12 && value.startsWith('30')) value=value.slice(2);
+        if (value.length!==10) continue;
+        if (value.startsWith('69')) {
+          if (!isFax && !mobiles.includes(value)) mobiles.push(value);
+        } else if (value.startsWith('2')) {
+          const bucket = isFax ? faxes : landlines;
+          if (!bucket.includes(value)) bucket.push(value);
+        }
+      }
+    });
+    if (mobiles.length) result.mobile=mobiles[0];
+    if (landlines.length) result.phone=landlines.join(' / ');
+    if (faxes.length) result.fax=faxes.join(' / ');
+    result.landlines=landlines;
+    result.faxes=faxes;
+
+    // Διεύθυνση: αναγνωρίζουμε ξεχωριστά οδό/αριθμό και Τ.Κ./πόλη.
+    // Δεν θεωρούμε τη διεύθυνση ονοματεπώνυμο.
+    const streetLine = lines.find(line => {
+      if (/(?:\b(?:tel|phone|fax|mobile|www)\b|τηλ|κιν|φ[αά]ξ|@|https?:)/iu.test(line)) return false;
+      if (/\b\d{5,}\b/.test(line)) return false;
+      const matches = line.match(/^((?:[\p{L}\p{M}][\p{L}\p{M}.\s΄’'-]{3,}))\s+(\d{1,3}[A-Za-zΑ-Ωα-ω]?)\s*[,.;]?$/u);
+      return !!matches && (matches[1].trim().split(/\s+/).length>=2 || /^(?:οδ|οδος|λεωφ|λεωφορος|εθν|αγ|αγιου|st\.?|str\.?)/iu.test(line));
+    });
+    const zipLine = lines.find(line =>
+      /(?<!\d)\d{3}[\s-]?\d{2}(?!\d)/.test(line) &&
+      /[\p{L}]/u.test(line) && !/(?:τηλ|κιν|fax|φ[αά]ξ|@)/iu.test(line));
+    if (streetLine) result.address=streetLine+(zipLine && zipLine!==streetLine ? ', '+zipLine : '');
+    else if (zipLine) result.address=zipLine;
     const role=lines.find(l=>/(?:^|[^\p{L}])(τεχνικ[οό]ς|τεχνικ[ηή]|μηχανικ[οό]ς|πωλητ[ηή]ς|υπε[υύ]θυνος|παθολ[οό]γος|ογκολ[οό]γος|ιατρ[οό]ς|διευθυντ[ηή]ς|service|engineer|technician|doctor|physician)(?=$|[^\p{L}])/iu.test(l));
     if(role) {
       const i=lines.indexOf(role);
@@ -431,9 +482,9 @@
   function downloadBlob(blob,name) {const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);}
   const exportStamp = () => new Date().toISOString().slice(0,10);
   function exportCSV(contacts) {
-    const cols=['Ονοματεπώνυμο','Εταιρεία','Ιδιότητα','Σταθερό','Κινητό','Email','Ιστοσελίδα','Τμήμα','Μηχάνημα','Παρατηρήσεις','Ημ/νία ενημέρωσης'];
+    const cols=['Ονοματεπώνυμο','Εταιρεία','Ιδιότητα','Σταθερά τηλέφωνα','Κινητό','Fax','Διεύθυνση','Email','Ιστοσελίδα','Τμήμα','Μηχάνημα','Παρατηρήσεις','Ημ/νία ενημέρωσης'];
     const csvSafe = value=> {let s=String(value??'');if (/^[\s]*[=+\-@\t\r]/.test(s)) s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};
-    const rows=[cols,...contacts.flatMap(c=>(dataArray(c.assignments).length?c.assignments:[{department:'',equipment:''}]).map(a=>[c.name,c.company,c.role,c.phone,c.mobile,c.email,c.website,a.department,a.equipment,c.notes,fmtDate(c.updatedAt)]))];
+    const rows=[cols,...contacts.flatMap(c=>(dataArray(c.assignments).length?c.assignments:[{department:'',equipment:''}]).map(a=>[c.name,c.company,c.role,c.phone,c.mobile,c.fax||'',c.address||'',c.email,c.website,a.department,a.equipment,c.notes,fmtDate(c.updatedAt)]))];
     downloadBlob(new Blob(['\ufeff',rows.map(r=>r.map(csvSafe).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'}),`GN_Verias_Kartes_${exportStamp()}.csv`);
     toast('Το CSV αποθηκεύτηκε.');
   }
@@ -458,7 +509,7 @@
       for(const c of parsed.contacts){
         if(!c||typeof c!=='object')continue;
         const photoBlob=typeof c.photoData==='string'&&c.photoData.startsWith('data:image/')?await dataURLToBlob(c.photoData):null;
-        const card={id:String(c.id||nextId()),name:String(c.name||''),company:String(c.company||''),role:String(c.role||''),phone:String(c.phone||''),mobile:String(c.mobile||''),email:String(c.email||''),website:String(c.website||''),assignments:dataArray(c.assignments).map(a=>({department:String(a.department||''),equipment:String(a.equipment||'')})),notes:String(c.notes||''),rawText:String(c.rawText||''),photoBlob,createdAt:c.createdAt||new Date().toISOString(),updatedAt:c.updatedAt||new Date().toISOString()};
+        const card={id:String(c.id||nextId()),name:String(c.name||''),company:String(c.company||''),role:String(c.role||''),phone:String(c.phone||''),mobile:String(c.mobile||''),fax:String(c.fax||''),address:String(c.address||''),email:String(c.email||''),website:String(c.website||''),assignments:dataArray(c.assignments).map(a=>({department:String(a.department||''),equipment:String(a.equipment||'')})),notes:String(c.notes||''),rawText:String(c.rawText||''),photoBlob,createdAt:c.createdAt||new Date().toISOString(),updatedAt:c.updatedAt||new Date().toISOString()};
         await putContact(card);count++;
       }
       toast(`Εισήχθησαν ${count} κάρτες.`);await showList();
