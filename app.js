@@ -94,7 +94,7 @@
     draft.assignments = dataArray(draft.assignments).length ? draft.assignments : [{department:'',equipment:''}];
     navActive(id ? 'list' : 'new');
     main.innerHTML = `<div class="page-head"><button type="button" class="back-btn" id="backList" aria-label="Επιστροφή">‹</button><div><h1 class="page-title">${id?'Επεξεργασία κάρτας':'Νέα επαγγελματική κάρτα'}</h1><div class="sub">${id?'Διόρθωσε τα στοιχεία ή πρόσθεσε παρατηρήσεις':'Αυτόματη αναγνώριση και καταχώριση'}</div></div></div>
-      <section class="panel"><h2>01 · Φωτογραφία κάρτας</h2><div class="photo-area" id="photoArea">${previewHTML()}</div><div class="photo-actions"><button type="button" class="btn btn-primary" id="takePhoto">📷 Φωτογράφιση</button><button type="button" class="btn btn-outline" id="choosePhoto">▧ Από συλλογή</button></div><input class="file-input" type="file" accept="image/*" capture="environment" id="cameraInput"><input class="file-input" type="file" accept="image/*" id="galleryInput"><div id="ocrStatus" class="ocr-bar ${draft.photoBlob?'':'hidden'}">${draft.photoBlob?'Μπορείς να επαναλάβεις την αναγνώριση αν χρειάζεται.':' '}<br><button class="btn btn-outline" id="retryOCR" type="button" ${!draft.photoBlob?'disabled':''}>↻ Αναγνώριση κειμένου</button></div><p class="hint">Η φωτογραφία αναγνωρίζεται στη συσκευή. Χρειάζεται σύνδεση στο διαδίκτυο για την πρώτη φόρτωση του OCR. Έλεγξε τα στοιχεία πριν τα αποθηκεύσεις.</p></section>
+      <section class="panel"><h2>01 · Φωτογραφία κάρτας</h2><div class="photo-area" id="photoArea">${previewHTML()}</div><div class="photo-actions"><button type="button" class="btn btn-primary" id="takePhoto">📷 Φωτογράφιση</button><button type="button" class="btn btn-outline" id="choosePhoto">▧ Από συλλογή</button></div><input class="file-input" type="file" accept="image/*" capture="environment" id="cameraInput"><input class="file-input" type="file" accept="image/*" id="galleryInput"><div id="ocrStatus" class="ocr-bar ${draft.photoBlob?'':'hidden'}">${draft.photoBlob?'Μπορείς να επαναλάβεις την αναγνώριση αν χρειάζεται.':' '}<br><button class="btn btn-outline" id="retryOCR" type="button" ${!draft.photoBlob?'disabled':''}>↻ Αναγνώριση κειμένου</button></div><p class="hint">Έκδοση OCR 2: δύο αναγνώσεις (ελληνικά + αγγλικά και μόνο ελληνικά), με βελτίωση αντίθεσης. Κράτησε την κάρτα επίπεδη, χωρίς αντανακλάσεις, και γέμισε το κάδρο. Η αναγνώριση γίνεται στη συσκευή και απαιτεί διαδίκτυο για την αρχική λήψη των γλωσσών. Έλεγξε τα στοιχεία πριν από την αποθήκευση.</p></section>
       <section class="panel"><h2>02 · Στοιχεία επικοινωνίας <small>— διορθώνονται</small></h2><div class="field-grid">${field('name','Ονοματεπώνυμο',{full:true,placeholder:'Όνομα και επώνυμο'})}${field('company','Εταιρεία',{full:true,placeholder:'Εταιρεία / προμηθευτής'})}${field('role','Ιδιότητα',{full:true,placeholder:'π.χ. Τεχνικός'})}${field('phone','Σταθερό τηλέφωνο',{type:'tel'})}${field('mobile','Κινητό τηλέφωνο',{type:'tel'})}${field('email','Email',{full:true,type:'email',autocomplete:'email'})}${field('website','Ιστοσελίδα',{full:true,placeholder:'www.example.gr'})}</div></section>
       <section class="panel"><h2>03 · Τμήματα & μηχανήματα</h2><p class="panel-tip">Ο ίδιος τεχνικός μπορεί να υποστηρίζει πολλά μηχανήματα σε διαφορετικά τμήματα.</p><div id="assignments">${assignmentsHTML()}</div><datalist id="knownDepartments"><option value="Τεχνική Υπηρεσία"><option value="Ακτινολογικό"><option value="Χειρουργεία"><option value="ΜΕΘ"><option value="Καρδιολογικό"><option value="ΤΕΠ"><option value="Εργαστήρια"><option value="Φυσικοθεραπεία"><option value="Μικροβιολογικό"><option value="Αποστείρωση"><option value="Αιμοδοσία"><option value="Πληροφορική"></datalist><button type="button" class="btn btn-outline" id="addAssignment">＋ Προσθήκη μηχανήματος</button></section>
       <section class="panel"><h2>04 · Παρατηρήσεις</h2><div class="field"><label for="f_notes">Σημειώσεις / οδηγίες επικοινωνίας / ιστορικό</label><textarea id="f_notes" placeholder="π.χ. Συντηρεί τον υπέρηχο του ΤΕΠ. Τηλεφωνούμε πρώτα στο κινητό…">${esc(draft.notes||'')}</textarea></div><p class="hint">Μη γράφεις στοιχεία ασθενών ή άλλες ευαίσθητες πληροφορίες.</p><details class="raw-details"><summary>Προβολή του κειμένου OCR (για έλεγχο)</summary><div class="field"><textarea id="f_rawText" placeholder="Το αναγνωρισμένο κείμενο εμφανίζεται εδώ…">${esc(draft.rawText||'')}</textarea></div></details></section>
@@ -139,10 +139,10 @@
     const objectURL = URL.createObjectURL(file);
     try {
       const img = await new Promise((resolve,reject) => {const i = new Image();i.onload=()=>resolve(i);i.onerror=()=>reject(new Error('Αδυναμία ανάγνωσης εικόνας'));i.src=objectURL;});
-      const ratio = Math.min(1, 1800/Math.max(img.naturalWidth,img.naturalHeight));
+      const ratio = Math.min(1, 2800/Math.max(img.naturalWidth,img.naturalHeight));
       const canvas = document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.naturalWidth*ratio));canvas.height=Math.max(1,Math.round(img.naturalHeight*ratio));
       const ctx = canvas.getContext('2d',{alpha:false}); ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);
-      return await new Promise((resolve,reject) => canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('Δεν ολοκληρώθηκε η συμπίεση')),'image/jpeg',.86));
+      return await new Promise((resolve,reject) => canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('Δεν ολοκληρώθηκε η συμπίεση')),'image/jpeg',.90));
     } finally { URL.revokeObjectURL(objectURL); }
   }
   function setOCRStatus(message,type='') {const el=document.getElementById('ocrStatus');if(!el)return;el.className=`ocr-bar ${type}`;el.innerHTML=`<div>${esc(message)}</div><button class="btn btn-outline" id="retryOCR" type="button" ${ocrRunning?'disabled':''}>↻ ${ocrRunning?'Σε εξέλιξη…':'Επανάληψη OCR'}</button>`;document.getElementById('retryOCR').onclick=()=>processOCR();}
@@ -159,25 +159,116 @@
     }).catch(e=>{tesseractPromise=null;throw e;});
     return tesseractPromise;
   }
+  // Προετοιμασία ειδικά για OCR: διατηρούμε την κάρτα ως εικόνα αλλά
+  // αναγνωρίζουμε από ξεχωριστό καμβά υψηλής ευκρίνειας/αντίθεσης.
+  async function prepareOCRImage(blob) {
+    const url = URL.createObjectURL(blob);
+    try {
+      const img = await new Promise((resolve, reject) => {
+        const el = new Image();
+        el.onload = () => resolve(el);
+        el.onerror = () => reject(new Error('Αδυναμία ανάγνωσης εικόνας για OCR'));
+        el.src = url;
+      });
+      // Δεν σμικρύνουμε ξανά το ήδη συμπιεσμένο πρωτότυπο.
+      // Μικρότερα καρέ με λεπτά γράμματα μεγεθύνονται έως 1.5 φορές.
+      const longEdge = Math.max(img.naturalWidth, img.naturalHeight);
+      const scale = Math.min(1.5, Math.max(1, 2700 / longEdge));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.min(3300, Math.round(img.naturalWidth * scale));
+      canvas.height = Math.min(3300, Math.round(img.naturalHeight * scale));
+      const ctx = canvas.getContext('2d', {alpha:false});
+      if (!ctx) return blob;
+      ctx.fillStyle = '#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
+      // Η ελαφρά αύξηση αντίθεσης βελτιώνει συνήθως μικρά, ανοιχτόχρωμα γράμματα.
+      ctx.filter = 'grayscale(1) contrast(1.28)';
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img,0,0,canvas.width,canvas.height);
+      return await new Promise((resolve,reject) => canvas.toBlob(
+        b => b?resolve(b):reject(new Error('Αποτυχία επεξεργασίας OCR')), 'image/png'
+      ));
+    } finally { URL.revokeObjectURL(url); }
+  }
+
+  // Για ελληνικά ονόματα προτιμούμε την αποκλειστικά ελληνική ανάγνωση,
+  // εφόσον έχει περισσότερο πραγματικό ελληνικό αλφάβητο.
+  function greekNameScore(value) {
+    const name = String(value||'').trim();
+    if (!name) return -1;
+    const words = name.split(/\s+/);
+    const gr = (name.match(/[Α-ΩΆΈΉΊΌΎΏα-ωάέήίόύώϊΐϋΰ]/g)||[]).length;
+    const letters = (name.match(/\p{L}/gu)||[]).length || 1;
+    if (words.length < 2 || words.length > 5) return -1;
+    return (gr/letters)*10 + Math.min(letters,28)*.08 - (name.length>46?3:0);
+  }
+
   async function processOCR() {
     if (!draft?.photoBlob || ocrRunning) return;
-    syncDraft(); ocrRunning=true; setOCRStatus('Φόρτωση αναγνώρισης ελληνικών και αγγλικών…');
+    syncDraft(); ocrRunning=true;
+    setOCRStatus('Προετοιμασία εικόνας για καλύτερη ανάγνωση ελληνικών…');
     let worker;
     try {
+      const image = await prepareOCRImage(draft.photoBlob).catch(err => {
+        console.warn('OCR preprocessing fallback', err);
+        return draft.photoBlob;
+      });
       const Tess = await loadTesseract();
-      worker=await Tess.createWorker('ell+eng',1,{logger:m=>{if(m.status==='recognizing text')setOCRStatus(`Αναγνώριση κειμένου… ${Math.round((m.progress||0)*100)}%`);else if(['loading language traineddata','loading tesseract core','initializing tesseract','initializing api'].includes(m.status))setOCRStatus('Προετοιμασία OCR (πρώτη φορά μπορεί να αργήσει)…');}});
-      const result=await worker.recognize(draft.photoBlob);
-      const text=result.data?.text||'';
-      const parsed=parseCard(text);
-      // Μη διαγράφεις χειροκίνητες διορθώσεις αν ξανατρέξει ο χρήστης το OCR.
-      for (const key of ['name','company','role','phone','mobile','email','website']) if (!String(draft[key]||'').trim() && parsed[key]) draft[key]=parsed[key];
-      draft.rawText=text;
+      worker = await Tess.createWorker(['ell', 'eng'], 1, {logger:m=>{
+        if (m.status === 'recognizing text') setOCRStatus(`Αναγνώριση κειμένου… ${Math.round((m.progress||0)*100)}%`);
+        else if (['loading language traineddata','loading tesseract core','initializing tesseract','initializing api'].includes(m.status))
+          setOCRStatus('Λήψη/φόρτωση γλωσσών (την πρώτη φορά ίσως αργήσει)…');
+      }});
+      // Οι κάρτες δεν έχουν μία ενιαία παράγραφο: PSM 11 = διάσπαρτο κείμενο.
+      await worker.setParameters({
+        tessedit_pageseg_mode: Tess.PSM.SPARSE_TEXT,
+        preserve_interword_spaces: '1',
+        user_defined_dpi: '300'
+      });
+      setOCRStatus('1/2 · Ανάγνωση ελληνικών και λατινικών…');
+      const bilingual = (await worker.recognize(image)).data?.text || '';
+      const mixedParsed = parseCard(bilingual);
+
+      // Η δεύτερη ανάγνωση με μόνο ελληνικά αποφεύγει συχνές μετατροπές
+      // ελληνικών γραμμάτων σε οπτικά παρόμοια λατινικά.
+      let greekText = '';
+      try {
+        setOCRStatus('2/2 · Βελτίωση ελληνικών ονομάτων…');
+        await worker.reinitialize('ell',1);
+        await worker.setParameters({
+          tessedit_pageseg_mode: Tess.PSM.SPARSE_TEXT,
+          preserve_interword_spaces: '1',
+          user_defined_dpi: '300'
+        });
+        greekText = (await worker.recognize(image)).data?.text || '';
+      } catch (secondaryError) {
+        console.warn('Greek-only OCR fallback', secondaryError);
+      }
+      const grParsed = parseCard(greekText);
+      const parsed = {...mixedParsed};
+      if (greekNameScore(grParsed.name) > greekNameScore(parsed.name) + 0.05) parsed.name = grParsed.name;
+      if (grParsed.role && (!parsed.role || (grParsed.role.match(/[Α-Ωα-ω]/g)||[]).length > (parsed.role.match(/[Α-Ωα-ω]/g)||[]).length))
+        parsed.role = grParsed.role;
+      // Επιβεβαίωση τηλεφώνων από το καθαρά ελληνικό αποτέλεσμα, αν λείπουν.
+      for (const k of ['phone','mobile']) if (!parsed[k] && grParsed[k]) parsed[k] = grParsed[k];
+
+      // Δεν αντικαθιστούμε ό,τι έχει συμπληρώσει ή διορθώσει ο χρήστης.
+      for (const key of ['name','company','role','phone','mobile','email','website'])
+        if (!String(draft[key]||'').trim() && parsed[key]) draft[key]=parsed[key];
+      draft.rawText = bilingual.trim() + (greekText.trim() ? '\n\n--- Ελληνική ανάγνωση ---\n' + greekText.trim() : '');
       applyDraftFields();
-      setOCRStatus(text.trim()?'Έγινε αναγνώριση. Έλεγξε και διόρθωσε τα πεδία πριν αποθηκεύσεις.':'Δεν αναγνωρίστηκε κείμενο. Δοκίμασε πιο καθαρή φωτογραφία ή γράψε τα στοιχεία χειροκίνητα.',text.trim()?'':'warning');
+      setOCRStatus(bilingual.trim() || greekText.trim()
+        ? 'Ολοκληρώθηκε η βελτιωμένη αναγνώριση. Διόρθωσε όσα πεδία χρειάζονται πριν αποθηκεύσεις.'
+        : 'Δεν βρέθηκε αναγνώσιμο κείμενο. Γέμισε το κάδρο με την κάρτα και δοκίμασε χωρίς αντανακλάσεις.',
+        bilingual.trim() || greekText.trim() ? '' : 'warning');
     } catch (error) {
       console.error('OCR error', error);
-      setOCRStatus('Το OCR δεν μπόρεσε να λειτουργήσει. Έλεγξε το διαδίκτυο και ξαναδοκίμασε, ή συμπλήρωσε τα πεδία χειροκίνητα.','error');
-    } finally {if(worker)try{await worker.terminate();}catch(_){};ocrRunning=false;const btn=document.getElementById('retryOCR');if(btn)btn.disabled=false;}
+      setOCRStatus('Δεν ολοκληρώθηκε το OCR. Έλεγξε το internet και δοκίμασε ξανά. Μπορείς πάντα να γράψεις τα στοιχεία χειροκίνητα.','error');
+    } finally {
+      if(worker)try{await worker.terminate();}catch(_){}
+      ocrRunning=false;
+      const btn=document.getElementById('retryOCR');if(btn)btn.disabled=false;
+    }
   }
   function parseCard(text) {
     const result={}; const clean=text.replace(/[\u200B-\u200D]/g,'');
@@ -194,10 +285,10 @@
     if(uniq.find(n=>n.startsWith('69')))result.mobile=uniq.find(n=>n.startsWith('69'));
     if(uniq.find(n=>n.startsWith('2')))result.phone=uniq.find(n=>n.startsWith('2'));
     if(!result.phone && uniq[0] && !result.mobile)result.phone=uniq[0];
-    const role=lines.find(l=>/\b(τεχνικ[οό]ς|τεχνικ[ηή]|μηχανικ[οό]ς|πωλητ[ηή]ς|υπε[υύ]θυνος|service|engineer|technician)\b/i.test(l));
+    const role=lines.find(l=>/(?:^|[^\p{L}])(τεχνικ[οό]ς|τεχνικ[ηή]|μηχανικ[οό]ς|πωλητ[ηή]ς|υπε[υύ]θυνος|service|engineer|technician)(?=$|[^\p{L}])/iu.test(l));
     if(role)result.role=role;
     // Πρώτη αξιόπιστη ελληνική γραμμή με δύο λέξεις, χωρίς στοιχεία επικοινωνίας.
-    const possible=lines.filter(l=>l.length>=7&&l.length<65&&/[Α-Ωα-ωΆ-Ώά-ώ]/.test(l)&&l.trim().split(/\s+/).length>=2&&!/(τηλ|κιν|www|@|fax|τεχνικ|μηχανικ|αθήνα|θεσσαλονίκη|\d{3})/i.test(l));
+    const possible=lines.filter(l=>l.length>=7&&l.length<65&&/[Α-Ωα-ωΆ-Ώά-ώ]/.test(l)&&l.trim().split(/\s+/).length>=2&&!/(τηλ|κιν|www|@|fax|τεχνικ|μηχανικ|αθήνα|θεσσαλονίκη|επαγγελματικ|κάρτα|\d{3})/i.test(l));
     if(possible.length)result.name=possible[0];
     if(result.website) {
       const match=result.website.replace(/^https?:\/\//,'').replace(/^www\./,'').match(/^([^.]+)\./);
