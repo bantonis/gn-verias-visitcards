@@ -15,6 +15,8 @@
   let cameraStream = null;
   let cameraSession = 0;
   let cameraPreviousFocus = null;
+  let cameraFocusCapabilities = {};
+  let cameraFocusOperation = 0;
   let toastTimeout;
   const greekMonths = ['Ιαν','Φεβ','Μαρ','Απρ','Μαΐ','Ιουν','Ιουλ','Αυγ','Σεπ','Οκτ','Νοε','Δεκ'];
 
@@ -107,7 +109,7 @@
     draft.assignments = dataArray(draft.assignments).length ? draft.assignments : [{department:'',equipment:''}];
     navActive(id ? 'list' : 'new');
     main.innerHTML = `<div class="page-head"><button type="button" class="back-btn" id="backList" aria-label="Επιστροφή">‹</button><div><h1 class="page-title">${id?'Επεξεργασία κάρτας':'Νέα επαγγελματική κάρτα'}</h1><div class="sub">${id?'Διόρθωσε τα στοιχεία ή πρόσθεσε παρατηρήσεις':'Αυτόματη αναγνώριση και καταχώριση'}</div></div></div>
-      <section class="panel"><h2>01 · Φωτογραφία κάρτας</h2><div class="photo-area" id="photoArea">${previewHTML()}</div><div class="photo-actions"><button type="button" class="btn btn-primary" id="takePhoto">📷 Φωτογράφιση με πλαίσιο</button><button type="button" class="btn btn-outline" id="choosePhoto">▧ Από συλλογή</button></div><input class="file-input" type="file" accept="image/*" capture="environment" id="cameraInput"><input class="file-input" type="file" accept="image/*" id="galleryInput"><div id="ocrStatus" class="ocr-bar ${draft.photoBlob?'':'hidden'}">${draft.photoBlob?'Μπορείς να επαναλάβεις την αναγνώριση αν χρειάζεται.':' '}<br><button class="btn btn-outline" id="retryOCR" type="button" ${!draft.photoBlob?'disabled':''}>↻ Αναγνώριση κειμένου</button></div><p class="hint">Έκδοση OCR 7: κάμερα με οριζόντιο πλαίσιο 1,75:1 και περικοπή για OCR. Δύο αναγνώσεις (ελληνικά + αγγλικά και μόνο ελληνικά), με βελτίωση αντίθεσης. Κράτησε την κάρτα επίπεδη, χωρίς αντανακλάσεις, και γέμισε το κάδρο. Η αναγνώριση γίνεται στη συσκευή και απαιτεί διαδίκτυο για την αρχική λήψη των γλωσσών. Έλεγξε τα στοιχεία πριν από την αποθήκευση. Αν το όνομα είχε καταχωριστεί λάθος παλαιότερα, μπορείς να το σβήσεις και να ξαναπατήσεις OCR ή να διαλέξεις πρόταση.</p></section>
+      <section class="panel"><h2>01 · Φωτογραφία κάρτας</h2><div class="photo-area" id="photoArea">${previewHTML()}</div><div class="photo-actions"><button type="button" class="btn btn-primary" id="takePhoto">📷 Φωτογράφιση με πλαίσιο</button><button type="button" class="btn btn-outline" id="choosePhoto">▧ Από συλλογή</button></div><input class="file-input" type="file" accept="image/*" capture="environment" id="cameraInput"><input class="file-input" type="file" accept="image/*" id="galleryInput"><div id="ocrStatus" class="ocr-bar ${draft.photoBlob?'':'hidden'}">${draft.photoBlob?'Μπορείς να επαναλάβεις την αναγνώριση αν χρειάζεται.':' '}<br><button class="btn btn-outline" id="retryOCR" type="button" ${!draft.photoBlob?'disabled':''}>↻ Αναγνώριση κειμένου</button></div><p class="hint">Έκδοση OCR 8: οριζόντιο πλαίσιο 1,75:1, υποστήριξη autofocus όπου παρέχεται, επιλογή κάμερας και χειροκίνητη εστίαση όπου επιτρέπεται. Δύο αναγνώσεις (ελληνικά + αγγλικά και μόνο ελληνικά), με βελτίωση αντίθεσης. Κράτησε την κάρτα επίπεδη, χωρίς αντανακλάσεις, και γέμισε το κάδρο. Η αναγνώριση γίνεται στη συσκευή και απαιτεί διαδίκτυο για την αρχική λήψη των γλωσσών. Έλεγξε τα στοιχεία πριν από την αποθήκευση. Αν το όνομα είχε καταχωριστεί λάθος παλαιότερα, μπορείς να το σβήσεις και να ξαναπατήσεις OCR ή να διαλέξεις πρόταση.</p></section>
       <section class="panel"><h2>02 · Στοιχεία επικοινωνίας <small>— διορθώνονται</small></h2><div class="field-grid">${field('name','Ονοματεπώνυμο',{full:true,placeholder:'Όνομα και επώνυμο'})}<div id="nameSuggestions" class="name-suggestion-block"></div>${field('company','Εταιρεία',{full:true,placeholder:'Εταιρεία / προμηθευτής'})}${field('role','Ιδιότητα',{full:true,placeholder:'π.χ. Τεχνικός'})}${field('phone','Σταθερά τηλέφωνα',{full:true,placeholder:'π.χ. 210 4809673 / 210 4809674'})}${field('mobile','Κινητό τηλέφωνο',{type:'tel'})}${field('fax','Fax',{type:'tel'})}<div id="faxSuggestions" class="fax-choice-block"></div>${field('address','Διεύθυνση',{full:true,placeholder:'Οδός, αριθμός, Τ.Κ., πόλη'})}${field('email','Email',{full:true,type:'email',autocomplete:'email'})}${field('website','Ιστοσελίδα',{full:true,placeholder:'www.example.gr'})}</div></section>
       <section class="panel"><h2>03 · Τμήματα & μηχανήματα</h2><p class="panel-tip">Ο ίδιος τεχνικός μπορεί να υποστηρίζει πολλά μηχανήματα σε διαφορετικά τμήματα.</p><div id="assignments">${assignmentsHTML()}</div><datalist id="knownDepartments"><option value="Τεχνική Υπηρεσία"><option value="Ακτινολογικό"><option value="Χειρουργεία"><option value="ΜΕΘ"><option value="Καρδιολογικό"><option value="ΤΕΠ"><option value="Εργαστήρια"><option value="Φυσικοθεραπεία"><option value="Μικροβιολογικό"><option value="Αποστείρωση"><option value="Αιμοδοσία"><option value="Πληροφορική"></datalist><button type="button" class="btn btn-outline" id="addAssignment">＋ Προσθήκη μηχανήματος</button></section>
       <section class="panel"><h2>04 · Παρατηρήσεις</h2><div class="field"><label for="f_notes">Σημειώσεις / οδηγίες επικοινωνίας / ιστορικό</label><textarea id="f_notes" placeholder="π.χ. Συντηρεί τον υπέρηχο του ΤΕΠ. Τηλεφωνούμε πρώτα στο κινητό…">${esc(draft.notes||'')}</textarea></div><p class="hint">Μη γράφεις στοιχεία ασθενών ή άλλες ευαίσθητες πληροφορίες.</p><details class="raw-details"><summary>Προβολή του κειμένου OCR (για έλεγχο)</summary><div class="field"><textarea id="f_rawText" placeholder="Το αναγνωρισμένο κείμενο εμφανίζεται εδώ…">${esc(draft.rawText||'')}</textarea></div></details></section>
@@ -186,6 +188,8 @@
   // Το πλήρες video δεν αποθηκεύεται ούτε αποστέλλεται σε εξωτερική υπηρεσία.
   function closeInlineCamera() {
     cameraSession++;
+    cameraFocusOperation++;
+    cameraFocusCapabilities = {};
     if (cameraStream) {
       cameraStream.getTracks().forEach(track => track.stop());
       cameraStream = null;
@@ -229,7 +233,12 @@
         <p class="capture-tip" id="cameraMessage" role="status">Εκκίνηση κάμερας…</p>
       </div>
       <div class="capture-footer">
-        <p>Κράτησε την κάρτα οριζόντια, μέσα στο πλαίσιο, με καλό φως και χωρίς αντανακλάσεις.</p>
+        <p>Κράτα την κάρτα περίπου 20–30 εκ. από τον φακό, με καλό φως. Περίμενε 1–2 δευτερόλεπτα να καθαρίσουν τα γράμματα πριν τη λήψη.</p>
+        <div class="capture-focus-tools">
+          <button type="button" id="refocusCamera" class="capture-tool" disabled>◎ Εστίαση ξανά</button>
+          <label class="capture-camera-picker hidden" id="cameraSourceLabel">Κάμερα <select id="cameraSource" aria-label="Επιλογή πίσω κάμερας"></select></label>
+        </div>
+        <label class="capture-manual-focus hidden" id="manualFocusWrap">Χειροκίνητη εστίαση <span>Μακριά <input id="manualFocusRange" type="range" min="0" max="100" value="50" step="1" aria-label="Χειροκίνητη εστίαση"> Κοντά</span></label>
         <div class="capture-buttons">
           <button type="button" id="useSystemCamera" class="capture-fallback">Κανονική κάμερα</button>
           <button type="button" id="captureCardShot" class="capture-shutter" aria-label="Λήψη φωτογραφίας" disabled><span></span></button>
@@ -245,6 +254,9 @@
       document.getElementById('cameraInput')?.click();
     };
     modal.querySelector('#captureCardShot').onclick = captureInlinePhoto;
+    modal.querySelector('#refocusCamera').onclick = () => { void refocusInlineCamera(); };
+    modal.querySelector('#manualFocusRange').addEventListener('input', event => { void setManualFocus(Number(event.target.value)); });
+    modal.querySelector('#cameraSource').onchange = event => { void switchInlineCamera(event.target.value); };
     modal.addEventListener('keydown', event => { if (event.key === 'Escape') {event.preventDefault();closeInlineCamera();} });
     modal.querySelector('#closeInlineCamera').focus({preventScroll:true});
     const video = modal.querySelector('#liveCamera');
@@ -267,7 +279,17 @@
       await video.play();
       if (session !== cameraSession || !modal.isConnected) return;
       modal.querySelector('#captureCardShot').disabled = false;
-      msg.textContent = 'Τοποθέτησε την κάρτα στο πλαίσιο';
+      msg.textContent = 'Περίμενε να εστιάσει στα γράμματα…';
+      await configureInlineFocus(session);
+      if (session !== cameraSession || !modal.isConnected) return;
+      await populateRearCameraPicker(session);
+      if (session === cameraSession && modal.isConnected) {
+        const modes = Array.isArray(cameraFocusCapabilities.focusMode) ? cameraFocusCapabilities.focusMode : [];
+        const manualAvailable = !modal.querySelector('#manualFocusWrap').classList.contains('hidden');
+        msg.textContent = (modes.includes('continuous') || modes.includes('single-shot') || manualAvailable)
+          ? 'Πάτησε λήψη όταν τα γράμματα φαίνονται καθαρά.'
+          : 'Ο Chrome δεν παρέχει ρύθμιση εστίασης. Κράτα 20–30 εκ. απόσταση ή πάτησε «Κανονική κάμερα».';
+      }
     } catch (error) {
       if (session !== cameraSession || !modal.isConnected) return;
       console.warn('Αδυναμία πρόσβασης στην κάμερα', error);
@@ -280,6 +302,149 @@
       msg.classList.add('capture-error');
     }
   }
+  // OCR 8: ο έλεγχος εστίασης εφαρμόζεται ΜΟΝΟ όταν τον δηλώνει ο browser.
+  // Το επιτυχημένο applyConstraints δεν εγγυάται οξύτητα: ελέγχουμε την προεπισκόπηση.
+  async function configureInlineFocus(session) {
+    const modal = document.getElementById('inlineCameraModal');
+    const track = cameraStream?.getVideoTracks()[0];
+    if (!modal || !track || session !== cameraSession) return;
+    const caps = typeof track.getCapabilities === 'function' ? (track.getCapabilities() || {}) : {};
+    cameraFocusCapabilities = caps;
+    const modes = Array.isArray(caps.focusMode) ? caps.focusMode : [];
+    const button = modal.querySelector('#refocusCamera');
+    const wrap = modal.querySelector('#manualFocusWrap');
+    const range = modal.querySelector('#manualFocusRange');
+    button.disabled = !(modes.includes('single-shot') || modes.includes('continuous'));
+    wrap.classList.add('hidden');
+    const dist = caps.focusDistance;
+    const manualPossible = modes.includes('manual') && dist && Number.isFinite(dist.min) && Number.isFinite(dist.max) && dist.max > dist.min;
+    if (manualPossible) {
+      wrap.classList.remove('hidden');
+      const current = Number(track.getSettings?.().focusDistance);
+      range.value = Number.isFinite(current) ? String(Math.max(0, Math.min(100, Math.round(100 * (current-dist.min)/(dist.max-dist.min))))) : '50';
+    }
+    if (modes.includes('continuous')) {
+      try { await track.applyConstraints({advanced:[{focusMode:'continuous'}]}); }
+      catch (error) { console.warn('Η αυτόματη εστίαση δεν εφαρμόστηκε',error); }
+    } else if (modes.includes('single-shot')) {
+      try { await track.applyConstraints({advanced:[{focusMode:'single-shot'}]}); }
+      catch (error) { console.warn('Η εστίαση μιας λήψης δεν εφαρμόστηκε',error); }
+    }
+    if (session === cameraSession && modal.isConnected && !button.disabled) button.title = 'Δοκίμασε ξανά την αυτόματη εστίαση';
+    if (session === cameraSession && modal.isConnected && button.disabled && !manualPossible) {
+      button.title = 'Ο browser δεν προσφέρει ρύθμιση εστίασης σε αυτήν την κάμερα';
+    }
+  }
+  async function refocusInlineCamera() {
+    const modal = document.getElementById('inlineCameraModal');
+    const track = cameraStream?.getVideoTracks()[0];
+    if (!modal || !track) return;
+    const modes = Array.isArray(cameraFocusCapabilities.focusMode) ? cameraFocusCapabilities.focusMode : [];
+    const button = modal.querySelector('#refocusCamera');
+    const msg = modal.querySelector('#cameraMessage');
+    if (!(modes.includes('single-shot') || modes.includes('continuous'))) {
+      msg.textContent = 'Ο browser δεν ελέγχει την εστίαση αυτής της κάμερας. Δοκίμασε την Κανονική κάμερα.';
+      return;
+    }
+    const op = ++cameraFocusOperation;
+    const session = cameraSession;
+    button.disabled = true;
+    msg.textContent = 'Γίνεται προσπάθεια εστίασης…';
+    try {
+      if (modes.includes('single-shot')) await track.applyConstraints({advanced:[{focusMode:'single-shot'}]});
+      else await track.applyConstraints({advanced:[{focusMode:'continuous'}]});
+      if (modes.includes('single-shot') && modes.includes('continuous')) {
+        await new Promise(resolve => setTimeout(resolve, 850));
+        if (op !== cameraFocusOperation || session !== cameraSession) return;
+        await track.applyConstraints({advanced:[{focusMode:'continuous'}]});
+      }
+      if (op === cameraFocusOperation && session === cameraSession && modal.isConnected) msg.textContent = 'Έλεγξε αν τα γράμματα είναι καθαρά πριν πατήσεις λήψη.';
+    } catch (error) {
+      console.warn('Ο browser δεν εφάρμοσε την εστίαση', error);
+      if (session === cameraSession && modal.isConnected) msg.textContent = 'Η εστίαση δεν υποστηρίχθηκε. Δοκίμασε απόσταση 20–30 εκ. ή την Κανονική κάμερα.';
+    } finally {
+      if (session === cameraSession && modal.isConnected) button.disabled = false;
+    }
+  }
+  async function setManualFocus(percent) {
+    const modal = document.getElementById('inlineCameraModal');
+    const track = cameraStream?.getVideoTracks()[0];
+    const dist = cameraFocusCapabilities.focusDistance;
+    const modes = cameraFocusCapabilities.focusMode;
+    if (!modal || !track || !dist || !Array.isArray(modes) || !modes.includes('manual')) return;
+    const value = dist.min + Math.max(0, Math.min(100, percent)) / 100 * (dist.max - dist.min);
+    try {
+      await track.applyConstraints({advanced:[{focusMode:'manual',focusDistance:value}]});
+      if (modal.isConnected) modal.querySelector('#cameraMessage').textContent = 'Ρύθμισε μέχρι τα γράμματα να γίνουν καθαρά.';
+    } catch (error) {
+      console.warn('Χειροκίνητη εστίαση μη διαθέσιμη',error);
+      if (modal.isConnected) modal.querySelector('#cameraMessage').textContent = 'Δεν εφαρμόστηκε χειροκίνητη εστίαση. Χρησιμοποίησε την Κανονική κάμερα.';
+    }
+  }
+  async function populateRearCameraPicker(session) {
+    const modal = document.getElementById('inlineCameraModal');
+    if (!modal || !navigator.mediaDevices?.enumerateDevices) return;
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      if (session !== cameraSession || !modal.isConnected) return;
+      const videoDevices = devices.filter(device => device.kind === 'videoinput' && device.deviceId);
+      const rear = videoDevices.filter(device => !/front|user|selfie|face|μπροστ/i.test(device.label));
+      if (rear.length < 2) return;
+      const picker = modal.querySelector('#cameraSource');
+      const currentId = cameraStream?.getVideoTracks()[0]?.getSettings?.().deviceId;
+      picker.replaceChildren();
+      rear.forEach((device, i) => {
+        const option = document.createElement('option');
+        option.value = device.deviceId;
+        option.textContent = device.label || `Πίσω κάμερα ${i+1}`;
+        option.selected = device.deviceId === currentId;
+        picker.appendChild(option);
+      });
+      modal.querySelector('#cameraSourceLabel').classList.remove('hidden');
+    } catch (error) {console.warn('Δεν είναι διαθέσιμη η επιλογή κάμερας',error);}
+  }
+  async function switchInlineCamera(deviceId) {
+    const modal = document.getElementById('inlineCameraModal');
+    if (!modal || !deviceId || !cameraStream) return;
+    const currentTrack = cameraStream.getVideoTracks()[0];
+    const oldId = currentTrack?.getSettings?.().deviceId;
+    if (oldId === deviceId) return;
+    const session = ++cameraSession;
+    ++cameraFocusOperation;
+    const msg = modal.querySelector('#cameraMessage');
+    const shutter = modal.querySelector('#captureCardShot');
+    shutter.disabled = true;
+    msg.textContent = 'Αλλαγή κάμερας…';
+    cameraStream.getTracks().forEach(t => t.stop());
+    cameraStream = null;
+    const video = modal.querySelector('#liveCamera');
+    video.srcObject = null;
+    let stream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({audio:false,video:{deviceId:{exact:deviceId},width:{ideal:1920},height:{ideal:1080}}});
+    } catch (error) {
+      console.warn('Αδυναμία αλλαγής πίσω κάμερας',error);
+      try {stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'}}});}
+      catch (second) {
+        if (session === cameraSession && modal.isConnected) msg.textContent='Η αλλαγή απέτυχε. Κλείσε και άνοιξε την κάμερα ή επίλεξε την Κανονική κάμερα.';
+        return;
+      }
+    }
+    if (session !== cameraSession || !modal.isConnected) {stream.getTracks().forEach(t=>t.stop());return;}
+    cameraStream=stream;
+    video.srcObject=stream;
+    try { await video.play(); }
+    catch (error) { console.warn('Δεν παίζει η κάμερα',error); }
+    if (session !== cameraSession || !modal.isConnected) return;
+    shutter.disabled=false;
+    await configureInlineFocus(session);
+    if (session === cameraSession && modal.isConnected) {
+      msg.textContent='Δες αν αυτή η κάμερα εστιάζει καλύτερα στα γράμματα.';
+      const activeId=cameraStream.getVideoTracks()[0]?.getSettings?.().deviceId;
+      if (activeId) modal.querySelector('#cameraSource').value=activeId;
+    }
+  }
+
   async function captureInlinePhoto() {
     const modal = document.getElementById('inlineCameraModal');
     if (!modal || !cameraStream) return;

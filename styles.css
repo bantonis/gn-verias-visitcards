@@ -32,3 +32,16 @@ html.camera-open,html.camera-open body{overflow:hidden!important;overscroll-beha
 .capture-shutter:disabled{opacity:.38;cursor:wait}
 .capture-close:focus-visible,.capture-fallback:focus-visible,.capture-shutter:focus-visible{outline:3px solid #65d3cf;outline-offset:3px}
 @media(orientation:landscape) and (max-height:600px){.capture-topbar{padding:4px 15px}.capture-close{width:37px;height:37px}.capture-footer{padding:4px 12px calc(5px + env(safe-area-inset-bottom))}.capture-footer>p{display:none}.capture-buttons{min-height:57px;grid-template-columns:1fr 62px 1fr}.capture-shutter{height:54px;width:54px;border-width:3px}.capture-shutter span{width:40px;height:40px}.capture-guide{width:min(76%,80vh,600px);max-height:80%}.capture-tip{bottom:5px;padding:4px 8px}}
+
+/* OCR 8 — συμβατοί χειρισμοί εστίασης και επιλογής πίσω κάμερας */
+.capture-focus-tools{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:0 0 10px}
+.capture-tool{border:1px solid #98bcc9;background:#294f64;color:#fff;border-radius:12px;padding:9px 12px;font-size:13px;font-weight:700;cursor:pointer}
+.capture-tool:disabled{opacity:.47;cursor:not-allowed}
+.capture-camera-picker{max-width:100%;font-size:12px;color:#e6f4f6}
+.capture-camera-picker select{max-width:180px;min-width:110px;margin-left:5px;background:#23465e;border:1px solid #98bcc9;border-radius:8px;color:#fff;padding:8px;font-size:12px}
+.capture-manual-focus{display:block;margin:0 0 11px;text-align:center;color:#e6f4f6;font-size:12px}
+.capture-manual-focus span{display:flex;align-items:center;gap:8px;justify-content:center;margin:5px 0}
+.capture-manual-focus input{width:min(50vw,300px);accent-color:#54d9cb}
+.capture-modal .hidden{display:none!important}
+.capture-tool:focus-visible,.capture-camera-picker select:focus-visible,.capture-manual-focus input:focus-visible{outline:3px solid #65d3cf;outline-offset:3px}
+@media(orientation:landscape) and (max-height:600px){.capture-focus-tools{margin:0 0 2px;gap:5px}.capture-tool{padding:5px 9px}.capture-manual-focus{margin:0 0 3px}.capture-footer>p{display:none}}
