@@ -94,8 +94,8 @@
     draft.assignments = dataArray(draft.assignments).length ? draft.assignments : [{department:'',equipment:''}];
     navActive(id ? 'list' : 'new');
     main.innerHTML = `<div class="page-head"><button type="button" class="back-btn" id="backList" aria-label="Επιστροφή">‹</button><div><h1 class="page-title">${id?'Επεξεργασία κάρτας':'Νέα επαγγελματική κάρτα'}</h1><div class="sub">${id?'Διόρθωσε τα στοιχεία ή πρόσθεσε παρατηρήσεις':'Αυτόματη αναγνώριση και καταχώριση'}</div></div></div>
-      <section class="panel"><h2>01 · Φωτογραφία κάρτας</h2><div class="photo-area" id="photoArea">${previewHTML()}</div><div class="photo-actions"><button type="button" class="btn btn-primary" id="takePhoto">📷 Φωτογράφιση</button><button type="button" class="btn btn-outline" id="choosePhoto">▧ Από συλλογή</button></div><input class="file-input" type="file" accept="image/*" capture="environment" id="cameraInput"><input class="file-input" type="file" accept="image/*" id="galleryInput"><div id="ocrStatus" class="ocr-bar ${draft.photoBlob?'':'hidden'}">${draft.photoBlob?'Μπορείς να επαναλάβεις την αναγνώριση αν χρειάζεται.':' '}<br><button class="btn btn-outline" id="retryOCR" type="button" ${!draft.photoBlob?'disabled':''}>↻ Αναγνώριση κειμένου</button></div><p class="hint">Έκδοση OCR 2: δύο αναγνώσεις (ελληνικά + αγγλικά και μόνο ελληνικά), με βελτίωση αντίθεσης. Κράτησε την κάρτα επίπεδη, χωρίς αντανακλάσεις, και γέμισε το κάδρο. Η αναγνώριση γίνεται στη συσκευή και απαιτεί διαδίκτυο για την αρχική λήψη των γλωσσών. Έλεγξε τα στοιχεία πριν από την αποθήκευση.</p></section>
-      <section class="panel"><h2>02 · Στοιχεία επικοινωνίας <small>— διορθώνονται</small></h2><div class="field-grid">${field('name','Ονοματεπώνυμο',{full:true,placeholder:'Όνομα και επώνυμο'})}${field('company','Εταιρεία',{full:true,placeholder:'Εταιρεία / προμηθευτής'})}${field('role','Ιδιότητα',{full:true,placeholder:'π.χ. Τεχνικός'})}${field('phone','Σταθερό τηλέφωνο',{type:'tel'})}${field('mobile','Κινητό τηλέφωνο',{type:'tel'})}${field('email','Email',{full:true,type:'email',autocomplete:'email'})}${field('website','Ιστοσελίδα',{full:true,placeholder:'www.example.gr'})}</div></section>
+      <section class="panel"><h2>01 · Φωτογραφία κάρτας</h2><div class="photo-area" id="photoArea">${previewHTML()}</div><div class="photo-actions"><button type="button" class="btn btn-primary" id="takePhoto">📷 Φωτογράφιση</button><button type="button" class="btn btn-outline" id="choosePhoto">▧ Από συλλογή</button></div><input class="file-input" type="file" accept="image/*" capture="environment" id="cameraInput"><input class="file-input" type="file" accept="image/*" id="galleryInput"><div id="ocrStatus" class="ocr-bar ${draft.photoBlob?'':'hidden'}">${draft.photoBlob?'Μπορείς να επαναλάβεις την αναγνώριση αν χρειάζεται.':' '}<br><button class="btn btn-outline" id="retryOCR" type="button" ${!draft.photoBlob?'disabled':''}>↻ Αναγνώριση κειμένου</button></div><p class="hint">Έκδοση OCR 3: δύο αναγνώσεις (ελληνικά + αγγλικά και μόνο ελληνικά), με βελτίωση αντίθεσης. Κράτησε την κάρτα επίπεδη, χωρίς αντανακλάσεις, και γέμισε το κάδρο. Η αναγνώριση γίνεται στη συσκευή και απαιτεί διαδίκτυο για την αρχική λήψη των γλωσσών. Έλεγξε τα στοιχεία πριν από την αποθήκευση. Αν το όνομα είχε καταχωριστεί λάθος παλαιότερα, μπορείς να το σβήσεις και να ξαναπατήσεις OCR ή να διαλέξεις πρόταση.</p></section>
+      <section class="panel"><h2>02 · Στοιχεία επικοινωνίας <small>— διορθώνονται</small></h2><div class="field-grid">${field('name','Ονοματεπώνυμο',{full:true,placeholder:'Όνομα και επώνυμο'})}<div id="nameSuggestions" class="name-suggestion-block"></div>${field('company','Εταιρεία',{full:true,placeholder:'Εταιρεία / προμηθευτής'})}${field('role','Ιδιότητα',{full:true,placeholder:'π.χ. Τεχνικός'})}${field('phone','Σταθερό τηλέφωνο',{type:'tel'})}${field('mobile','Κινητό τηλέφωνο',{type:'tel'})}${field('email','Email',{full:true,type:'email',autocomplete:'email'})}${field('website','Ιστοσελίδα',{full:true,placeholder:'www.example.gr'})}</div></section>
       <section class="panel"><h2>03 · Τμήματα & μηχανήματα</h2><p class="panel-tip">Ο ίδιος τεχνικός μπορεί να υποστηρίζει πολλά μηχανήματα σε διαφορετικά τμήματα.</p><div id="assignments">${assignmentsHTML()}</div><datalist id="knownDepartments"><option value="Τεχνική Υπηρεσία"><option value="Ακτινολογικό"><option value="Χειρουργεία"><option value="ΜΕΘ"><option value="Καρδιολογικό"><option value="ΤΕΠ"><option value="Εργαστήρια"><option value="Φυσικοθεραπεία"><option value="Μικροβιολογικό"><option value="Αποστείρωση"><option value="Αιμοδοσία"><option value="Πληροφορική"></datalist><button type="button" class="btn btn-outline" id="addAssignment">＋ Προσθήκη μηχανήματος</button></section>
       <section class="panel"><h2>04 · Παρατηρήσεις</h2><div class="field"><label for="f_notes">Σημειώσεις / οδηγίες επικοινωνίας / ιστορικό</label><textarea id="f_notes" placeholder="π.χ. Συντηρεί τον υπέρηχο του ΤΕΠ. Τηλεφωνούμε πρώτα στο κινητό…">${esc(draft.notes||'')}</textarea></div><p class="hint">Μη γράφεις στοιχεία ασθενών ή άλλες ευαίσθητες πληροφορίες.</p><details class="raw-details"><summary>Προβολή του κειμένου OCR (για έλεγχο)</summary><div class="field"><textarea id="f_rawText" placeholder="Το αναγνωρισμένο κείμενο εμφανίζεται εδώ…">${esc(draft.rawText||'')}</textarea></div></details></section>
       <div class="action-bar"><button type="button" class="btn btn-primary btn-block" id="saveCard">✓ Αποθήκευση κάρτας</button>${id?'<button type="button" class="btn btn-danger" id="deleteCard" aria-label="Διαγραφή κάρτας">🗑</button>':''}</div><div id="formError" class="error-inline" aria-live="polite"></div>${id?`<div class="last-save">Τελευταία ενημέρωση: ${esc(fmtDate(draft.updatedAt))}</div>`:''}`;
@@ -191,16 +191,93 @@
     } finally { URL.revokeObjectURL(url); }
   }
 
-  // Για ελληνικά ονόματα προτιμούμε την αποκλειστικά ελληνική ανάγνωση,
-  // εφόσον έχει περισσότερο πραγματικό ελληνικό αλφάβητο.
-  function greekNameScore(value) {
-    const name = String(value||'').trim();
-    if (!name) return -1;
-    const words = name.split(/\s+/);
-    const gr = (name.match(/[Α-ΩΆΈΉΊΌΎΏα-ωάέήίόύώϊΐϋΰ]/g)||[]).length;
-    const letters = (name.match(/\p{L}/gu)||[]).length || 1;
-    if (words.length < 2 || words.length > 5) return -1;
-    return (gr/letters)*10 + Math.min(letters,28)*.08 - (name.length>46?3:0);
+  // v3: το OCR απλώς διαβάζει χαρακτήρες· ένα δεύτερο στάδιο επιλέγει
+  // προσωπικά ονόματα, όχι διευθύνσεις/εταιρείες. Σε αμφιβολία ζητά επιλογή.
+  const nameNormalize = str => stripForSearch(str).replace(/\s+/g,' ').trim();
+  const NAME_ADDRESS_WORDS = /(?:^|\s)(?:οδος|οδ|λεωφορος|λεωφ|λεωφ\.|διευθυνση|διευθ|ταχυδρομικος|ταχ|ταχ\.|τ\.?κ\.?|αριθμος|αρ\.|περιοχη|εδρα|οικισμος|street|avenue|address|road|postcode|zip)(?:$|\s|[.:])/i;
+  const NAME_ADDRESS_PLACES = /(?:^|\s)(?:αθηνα|θεσσαλονικη|αλεξανδρουπολη|βεροια|πατρα|καβαλα|δραμα|πειραιας|σερρες|ηρακλειο|ιωαννινα|κοζανη|ελλαδα|greece|thessaloniki|athens)(?:$|\s)/i;
+  const NAME_NONPERSON = /(τεχνικ|μηχανικ|συντηρησ|υπευθυν|προισταμ|πωλητ|service|engineer|sales|support|manager|εταιρει|εμπορικ|ανωνυμ|βιομηχαν|βιοτεχν|επιχειρη|ιατρικ|εξοπλισμ|μηχανημ|τεχνολογ|νοσοκομ|εργαστηρ|ανταλλακτικ|ομιλ|γραφει|προμηθει|συστημ|φυσικοθεραπε|αποκαταστασ|καρτεσ|καρτα|επικοινωνι|παροχ|πελατ|προιον|services|solutions|company|limited|international|information|medical|equipment|technology|hospital)/i;
+  const ROLE_WORDS = /(τεχνικ|μηχανικ|υπευθυν|πωλητ|πωλησε|διευθυντ|προισταμ|service|engineer|technician|sales|manager|director|support)/i;
+  function looksLikeAddress(value) {
+    const norm = nameNormalize(value).replace(/[,;]/g,' ');
+    return /\d/.test(value) || NAME_ADDRESS_WORDS.test(norm) || NAME_ADDRESS_PLACES.test(norm);
+  }
+  function scoreNameCandidate(raw, index, lines) {
+    let value=raw.replace(/^(?:ονοματεπ[ώω]νυμο|ονομα\s*[-/]\s*επωνυμο|name|contact|επικοινωνια)\s*[:：-]\s*/iu,'').trim();
+    value=value.replace(/^[·•*-]\s*/,'').replace(/\s*[|–—]\s*$/,'').trim();
+    if (value.length < 7 || value.length > 56 || looksLikeAddress(value)) return null;
+    if (/@|www\.|https?:|\b(?:fax|tel|mobile|email)\b/i.test(value)) return null;
+    const norm=nameNormalize(value);
+    if (NAME_NONPERSON.test(norm) || /(?:^|\s)(?:ae|a\.?e\.?|epe|ike|ltd|inc|a\.?b\.?e\.?)(?:$|\s)/i.test(norm)) return null;
+    if (/[^\p{L}\p{M}\s.'’΄-]/u.test(value)) return null;
+    const words=value.split(/\s+/).filter(Boolean);
+    if (words.length<2 || words.length>4) return null;
+    if (words.some(w=>!/(?:^[\p{L}\p{M}]{2,}(?:[-’'][\p{L}\p{M}]+)?$|^[\p{L}]\.$)/u.test(w))) return null;
+    if (words.filter(w=>/^[\p{L}\p{M}]{2,}/u.test(w)).length<2) return null;
+    const letters=(value.match(/\p{L}/gu)||[]).length;
+    const greek=(value.match(/[Α-ΩΆΈΉΊΌΎΏα-ωάέήίόύώϊΐϋΰ]/g)||[]).length;
+    if (letters<8 || greek/letters<.5) return null;
+    let score = words.length===2 ? 5.1 : words.length===3 ? 4.6 : 3.8;
+    if (index<4) score += 2.1-index*.35;
+    if (index>=7) score -= .6;
+    const previous=nameNormalize(lines[index-1]||'');
+    if (/(?:ονοματεπωνυμο|ονομα|name|contact person)/i.test(previous)) score+=3;
+    const nearby=lines.slice(Math.max(0,index-2),Math.min(lines.length,index+3))
+      .filter((_,i)=>Math.max(0,index-2)+i!==index);
+    if (nearby.some(l=>ROLE_WORDS.test(nameNormalize(l)))) score+=2.1;
+    // Διευθύνσεις που έχουν μόνο γράμματα (π.χ. Παύλου Μελά) συνήθως
+    // συνοδεύονται από διεύθυνση, πόλη ή ταχυδρομικό κώδικα.
+    const nearAddress=nearby.some(l=>looksLikeAddress(l) && !/^(?:69|2)\d{8}$/.test(l.replace(/\D/g,'')));
+    const nearRole=nearby.some(l=>ROLE_WORDS.test(nameNormalize(l)));
+    if (nearAddress) score-=2.7;
+    if (nearAddress && !nearRole && !/(?:ονοματεπωνυμο|ονομα|name)/i.test(previous)) score-=2;
+    if (lines.slice(0,index).some(l=>/@|www\.|(?:\+?30)?(?:69\d{2}|2\d{3})[\s.-]/i.test(l))) score-=1.4;
+    if (/^[Α-ΩΆΈΉΊΌΎΏ\s.'’΄-]+$/u.test(value))score+=.4;
+    return {name:value,score:Math.round(score*100)/100};
+  }
+  function extractNameCandidates(text) {
+    const lines=String(text||'').replace(/[\u200B-\u200D]/g,'').split(/[\r\n]+/)
+      .map(l=>l.replace(/\s+/g,' ').trim()).filter(Boolean);
+    const candidates=[];
+    for(let i=0;i<lines.length;i++){
+      const candidate=scoreNameCandidate(lines[i],i,lines);
+      if(candidate)candidates.push(candidate);
+      // Ορισμένες κάρτες τυπώνουν επώνυμο και όνομα σε δύο συνεχείς γραμμές.
+      if(i<lines.length-1 && /^\p{L}{3,}$/u.test(lines[i]) && /^\p{L}{3,}$/u.test(lines[i+1])){
+        const combined=scoreNameCandidate(lines[i]+' '+lines[i+1],i,lines);
+        if(combined)candidates.push({...combined,score:combined.score-1.1});
+      }
+    }
+    return candidates;
+  }
+  function mergeNameCandidates(...texts) {
+    const byName=new Map();
+    texts.forEach((text,reading)=>extractNameCandidates(text).forEach(c=>{
+      const key=nameNormalize(c.name);
+      const current=byName.get(key);
+      if(!current)byName.set(key,{...c,readings:new Set([reading])});
+      else {current.score=Math.max(current.score,c.score);current.readings.add(reading);}
+    }));
+    return [...byName.values()].map(c=>({name:c.name,score:c.score+(c.readings.size>1?1.1:0)}))
+      .sort((a,b)=>b.score-a.score).slice(0,5);
+  }
+  function showNameSuggestions(candidates) {
+    const target=document.getElementById('nameSuggestions');
+    if(!target)return;
+    target.replaceChildren();
+    const likely=candidates.filter(c=>c.score>=4.5).slice(0,4);
+    if(!likely.length)return;
+    const help=document.createElement('div');help.className='hint';
+    help.textContent='Προτάσεις ονόματος από την κάρτα — πάτησε το σωστό αν χρειάζεται διόρθωση:';
+    target.appendChild(help);
+    const wrap=document.createElement('div');wrap.className='name-suggestions';
+    for(const candidate of likely){
+      const button=document.createElement('button');button.type='button';button.className='name-suggestion';
+      button.textContent=candidate.name;
+      button.addEventListener('click',()=>{document.getElementById('f_name').value=candidate.name;draft.name=candidate.name;toast('Το ονοματεπώνυμο ενημερώθηκε.');});
+      wrap.appendChild(button);
+    }
+    target.appendChild(wrap);
   }
 
   async function processOCR() {
@@ -246,7 +323,10 @@
       }
       const grParsed = parseCard(greekText);
       const parsed = {...mixedParsed};
-      if (greekNameScore(grParsed.name) > greekNameScore(parsed.name) + 0.05) parsed.name = grParsed.name;
+      const nameCandidates = mergeNameCandidates(bilingual,greekText);
+      // Όταν δεν υπάρχει αξιόπιστο όνομα, αφήνουμε κενό αντί να βάζουμε διεύθυνση.
+      parsed.name = nameCandidates[0]?.score>=6.3 ? nameCandidates[0].name : '';
+      showNameSuggestions(nameCandidates);
       if (grParsed.role && (!parsed.role || (grParsed.role.match(/[Α-Ωα-ω]/g)||[]).length > (parsed.role.match(/[Α-Ωα-ω]/g)||[]).length))
         parsed.role = grParsed.role;
       // Επιβεβαίωση τηλεφώνων από το καθαρά ελληνικό αποτέλεσμα, αν λείπουν.
@@ -258,7 +338,7 @@
       draft.rawText = bilingual.trim() + (greekText.trim() ? '\n\n--- Ελληνική ανάγνωση ---\n' + greekText.trim() : '');
       applyDraftFields();
       setOCRStatus(bilingual.trim() || greekText.trim()
-        ? 'Ολοκληρώθηκε η βελτιωμένη αναγνώριση. Διόρθωσε όσα πεδία χρειάζονται πριν αποθηκεύσεις.'
+        ? (parsed.name ? 'Η αναγνώριση ολοκληρώθηκε. Έλεγξε το όνομα και τα στοιχεία πριν αποθηκεύσεις.' : 'Δεν εντοπίστηκε με σιγουριά ονοματεπώνυμο. Επίλεξε πρόταση ή γράψ’ το χειροκίνητα. Αν είχε μείνει λάθος όνομα, σβήσ’ το πρώτα.')
         : 'Δεν βρέθηκε αναγνώσιμο κείμενο. Γέμισε το κάδρο με την κάρτα και δοκίμασε χωρίς αντανακλάσεις.',
         bilingual.trim() || greekText.trim() ? '' : 'warning');
     } catch (error) {
@@ -287,9 +367,8 @@
     if(!result.phone && uniq[0] && !result.mobile)result.phone=uniq[0];
     const role=lines.find(l=>/(?:^|[^\p{L}])(τεχνικ[οό]ς|τεχνικ[ηή]|μηχανικ[οό]ς|πωλητ[ηή]ς|υπε[υύ]θυνος|service|engineer|technician)(?=$|[^\p{L}])/iu.test(l));
     if(role)result.role=role;
-    // Πρώτη αξιόπιστη ελληνική γραμμή με δύο λέξεις, χωρίς στοιχεία επικοινωνίας.
-    const possible=lines.filter(l=>l.length>=7&&l.length<65&&/[Α-Ωα-ωΆ-Ώά-ώ]/.test(l)&&l.trim().split(/\s+/).length>=2&&!/(τηλ|κιν|www|@|fax|τεχνικ|μηχανικ|αθήνα|θεσσαλονίκη|επαγγελματικ|κάρτα|\d{3})/i.test(l));
-    if(possible.length)result.name=possible[0];
+    // Το τελικό όνομα προκύπτει από ελεγμένες υποψηφιότητες και τις δύο
+    // αναγνώσεις OCR στο processOCR — όχι από την πρώτη δίλεξη γραμμή.
     if(result.website) {
       const match=result.website.replace(/^https?:\/\//,'').replace(/^www\./,'').match(/^([^.]+)\./);
       if(match) result.company=match[1][0].toUpperCase()+match[1].slice(1);
