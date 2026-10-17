@@ -11,6 +11,10 @@
   let photoURL = null;
   let listURLs = [];
   let ocrRunning = false;
+  // Η κάμερα WebRTC είναι προσωρινή· δεν αποθηκεύεται βίντεο.
+  let cameraStream = null;
+  let cameraSession = 0;
+  let cameraPreviousFocus = null;
   let toastTimeout;
   const greekMonths = ['Ιαν','Φεβ','Μαρ','Απρ','Μαΐ','Ιουν','Ιουλ','Αυγ','Σεπ','Οκτ','Νοε','Δεκ'];
 
@@ -42,7 +46,7 @@
   const releasePhotoURL = () => { if (photoURL) {URL.revokeObjectURL(photoURL);photoURL=null;} };
 
   async function showList(search='') {
-    editingId = null; draft = null; releasePhotoURL(); releaseListURLs(); navActive('list');
+    closeInlineCamera(); editingId = null; draft = null; releasePhotoURL(); releaseListURLs(); navActive('list');
     const contacts = (await allContacts()).sort((a,b) => new Date(b.updatedAt)-new Date(a.updatedAt));
     const assocCount = contacts.reduce((sum, item) => sum + dataArray(item.assignments).length, 0);
     const companyCount = new Set(contacts.map(c => c.company?.trim().toLowerCase()).filter(Boolean)).size;
@@ -97,19 +101,19 @@
     return `<div class="photo-placeholder"><span class="camera">▣</span><strong>Η κάρτα σου θα εμφανιστεί εδώ</strong><span>Τράβηξε φωτογραφία ή επίλεξε εικόνα</span></div>`;
   }
   async function showForm(id=null) {
-    releasePhotoURL(); releaseListURLs(); editingId = id;
+    closeInlineCamera(); releasePhotoURL(); releaseListURLs(); editingId = id;
     draft = id ? await getContact(id) : newDraft();
     if (!draft) { toast('Δεν βρέθηκε η συγκεκριμένη κάρτα.'); return showList(); }
     draft.assignments = dataArray(draft.assignments).length ? draft.assignments : [{department:'',equipment:''}];
     navActive(id ? 'list' : 'new');
     main.innerHTML = `<div class="page-head"><button type="button" class="back-btn" id="backList" aria-label="Επιστροφή">‹</button><div><h1 class="page-title">${id?'Επεξεργασία κάρτας':'Νέα επαγγελματική κάρτα'}</h1><div class="sub">${id?'Διόρθωσε τα στοιχεία ή πρόσθεσε παρατηρήσεις':'Αυτόματη αναγνώριση και καταχώριση'}</div></div></div>
-      <section class="panel"><h2>01 · Φωτογραφία κάρτας</h2><div class="photo-area" id="photoArea">${previewHTML()}</div><div class="photo-actions"><button type="button" class="btn btn-primary" id="takePhoto">📷 Φωτογράφιση</button><button type="button" class="btn btn-outline" id="choosePhoto">▧ Από συλλογή</button></div><input class="file-input" type="file" accept="image/*" capture="environment" id="cameraInput"><input class="file-input" type="file" accept="image/*" id="galleryInput"><div id="ocrStatus" class="ocr-bar ${draft.photoBlob?'':'hidden'}">${draft.photoBlob?'Μπορείς να επαναλάβεις την αναγνώριση αν χρειάζεται.':' '}<br><button class="btn btn-outline" id="retryOCR" type="button" ${!draft.photoBlob?'disabled':''}>↻ Αναγνώριση κειμένου</button></div><p class="hint">Έκδοση OCR 6: δύο αναγνώσεις (ελληνικά + αγγλικά και μόνο ελληνικά), με βελτίωση αντίθεσης. Κράτησε την κάρτα επίπεδη, χωρίς αντανακλάσεις, και γέμισε το κάδρο. Η αναγνώριση γίνεται στη συσκευή και απαιτεί διαδίκτυο για την αρχική λήψη των γλωσσών. Έλεγξε τα στοιχεία πριν από την αποθήκευση. Αν το όνομα είχε καταχωριστεί λάθος παλαιότερα, μπορείς να το σβήσεις και να ξαναπατήσεις OCR ή να διαλέξεις πρόταση.</p></section>
+      <section class="panel"><h2>01 · Φωτογραφία κάρτας</h2><div class="photo-area" id="photoArea">${previewHTML()}</div><div class="photo-actions"><button type="button" class="btn btn-primary" id="takePhoto">📷 Φωτογράφιση με πλαίσιο</button><button type="button" class="btn btn-outline" id="choosePhoto">▧ Από συλλογή</button></div><input class="file-input" type="file" accept="image/*" capture="environment" id="cameraInput"><input class="file-input" type="file" accept="image/*" id="galleryInput"><div id="ocrStatus" class="ocr-bar ${draft.photoBlob?'':'hidden'}">${draft.photoBlob?'Μπορείς να επαναλάβεις την αναγνώριση αν χρειάζεται.':' '}<br><button class="btn btn-outline" id="retryOCR" type="button" ${!draft.photoBlob?'disabled':''}>↻ Αναγνώριση κειμένου</button></div><p class="hint">Έκδοση OCR 7: κάμερα με οριζόντιο πλαίσιο 1,75:1 και περικοπή για OCR. Δύο αναγνώσεις (ελληνικά + αγγλικά και μόνο ελληνικά), με βελτίωση αντίθεσης. Κράτησε την κάρτα επίπεδη, χωρίς αντανακλάσεις, και γέμισε το κάδρο. Η αναγνώριση γίνεται στη συσκευή και απαιτεί διαδίκτυο για την αρχική λήψη των γλωσσών. Έλεγξε τα στοιχεία πριν από την αποθήκευση. Αν το όνομα είχε καταχωριστεί λάθος παλαιότερα, μπορείς να το σβήσεις και να ξαναπατήσεις OCR ή να διαλέξεις πρόταση.</p></section>
       <section class="panel"><h2>02 · Στοιχεία επικοινωνίας <small>— διορθώνονται</small></h2><div class="field-grid">${field('name','Ονοματεπώνυμο',{full:true,placeholder:'Όνομα και επώνυμο'})}<div id="nameSuggestions" class="name-suggestion-block"></div>${field('company','Εταιρεία',{full:true,placeholder:'Εταιρεία / προμηθευτής'})}${field('role','Ιδιότητα',{full:true,placeholder:'π.χ. Τεχνικός'})}${field('phone','Σταθερά τηλέφωνα',{full:true,placeholder:'π.χ. 210 4809673 / 210 4809674'})}${field('mobile','Κινητό τηλέφωνο',{type:'tel'})}${field('fax','Fax',{type:'tel'})}<div id="faxSuggestions" class="fax-choice-block"></div>${field('address','Διεύθυνση',{full:true,placeholder:'Οδός, αριθμός, Τ.Κ., πόλη'})}${field('email','Email',{full:true,type:'email',autocomplete:'email'})}${field('website','Ιστοσελίδα',{full:true,placeholder:'www.example.gr'})}</div></section>
       <section class="panel"><h2>03 · Τμήματα & μηχανήματα</h2><p class="panel-tip">Ο ίδιος τεχνικός μπορεί να υποστηρίζει πολλά μηχανήματα σε διαφορετικά τμήματα.</p><div id="assignments">${assignmentsHTML()}</div><datalist id="knownDepartments"><option value="Τεχνική Υπηρεσία"><option value="Ακτινολογικό"><option value="Χειρουργεία"><option value="ΜΕΘ"><option value="Καρδιολογικό"><option value="ΤΕΠ"><option value="Εργαστήρια"><option value="Φυσικοθεραπεία"><option value="Μικροβιολογικό"><option value="Αποστείρωση"><option value="Αιμοδοσία"><option value="Πληροφορική"></datalist><button type="button" class="btn btn-outline" id="addAssignment">＋ Προσθήκη μηχανήματος</button></section>
       <section class="panel"><h2>04 · Παρατηρήσεις</h2><div class="field"><label for="f_notes">Σημειώσεις / οδηγίες επικοινωνίας / ιστορικό</label><textarea id="f_notes" placeholder="π.χ. Συντηρεί τον υπέρηχο του ΤΕΠ. Τηλεφωνούμε πρώτα στο κινητό…">${esc(draft.notes||'')}</textarea></div><p class="hint">Μη γράφεις στοιχεία ασθενών ή άλλες ευαίσθητες πληροφορίες.</p><details class="raw-details"><summary>Προβολή του κειμένου OCR (για έλεγχο)</summary><div class="field"><textarea id="f_rawText" placeholder="Το αναγνωρισμένο κείμενο εμφανίζεται εδώ…">${esc(draft.rawText||'')}</textarea></div></details></section>
       <div class="action-bar"><button type="button" class="btn btn-primary btn-block" id="saveCard">✓ Αποθήκευση κάρτας</button>${id?'<button type="button" class="btn btn-danger" id="deleteCard" aria-label="Διαγραφή κάρτας">🗑</button>':''}</div><div id="formError" class="error-inline" aria-live="polite"></div>${id?`<div class="last-save">Τελευταία ενημέρωση: ${esc(fmtDate(draft.updatedAt))}</div>`:''}`;
     document.getElementById('backList').onclick = () => showList();
-    document.getElementById('takePhoto').onclick = () => document.getElementById('cameraInput').click();
+    document.getElementById('takePhoto').onclick = openInlineCamera;
     document.getElementById('choosePhoto').onclick = () => document.getElementById('galleryInput').click();
     document.getElementById('cameraInput').onchange = async e => handlePhoto(e.target.files[0]);
     document.getElementById('galleryInput').onchange = async e => handlePhoto(e.target.files[0]);
@@ -176,6 +180,161 @@
     }
     slot.appendChild(choices);
   }
+
+  // OCR 7: προεπισκόπηση πραγματικού video με οριζόντιο πλαίσιο κάρτας.
+  // Η λήψη γίνεται με getUserMedia μόνο μετά από πάτημα του χρήστη.
+  // Το πλήρες video δεν αποθηκεύεται ούτε αποστέλλεται σε εξωτερική υπηρεσία.
+  function closeInlineCamera() {
+    cameraSession++;
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+      cameraStream = null;
+    }
+    const video = document.getElementById('liveCamera');
+    if (video) {
+      video.pause();
+      video.srcObject = null;
+    }
+    document.getElementById('inlineCameraModal')?.remove();
+    document.documentElement.classList.remove('camera-open');
+    const focus = cameraPreviousFocus;
+    cameraPreviousFocus = null;
+    if (focus?.isConnected) focus.focus({preventScroll:true});
+  }
+  async function openInlineCamera() {
+    if (document.getElementById('inlineCameraModal')) return;
+    // Ο χρήστης μπορεί να έχει διορθώσει στοιχεία πριν φωτογραφίσει ξανά.
+    syncDraft();
+    cameraPreviousFocus = document.activeElement;
+    if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+      toast('Η ενσωματωμένη κάμερα δεν υποστηρίζεται. Θα ανοίξει η κανονική κάμερα.');
+      document.getElementById('cameraInput')?.click();
+      return;
+    }
+    const session = ++cameraSession;
+    const modal = document.createElement('div');
+    modal.id = 'inlineCameraModal';
+    modal.className = 'capture-modal';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Φωτογράφιση επαγγελματικής κάρτας');
+    modal.innerHTML = `<div class="capture-shell">
+      <div class="capture-topbar">
+        <button type="button" id="closeInlineCamera" class="capture-close" aria-label="Κλείσιμο κάμερας">✕</button>
+        <div class="capture-heading"><strong>Φωτογράφιση κάρτας</strong><small>Οριζόντιο πλαίσιο · 1,75:1</small></div>
+      </div>
+      <div class="capture-stage" id="captureStage">
+        <video id="liveCamera" autoplay playsinline muted aria-label="Ζωντανή εικόνα πίσω κάμερας"></video>
+        <div class="capture-guide" id="cardGuide" aria-hidden="true"><span class="guide-corner tl"></span><span class="guide-corner tr"></span><span class="guide-corner bl"></span><span class="guide-corner br"></span></div>
+        <p class="capture-tip" id="cameraMessage" role="status">Εκκίνηση κάμερας…</p>
+      </div>
+      <div class="capture-footer">
+        <p>Κράτησε την κάρτα οριζόντια, μέσα στο πλαίσιο, με καλό φως και χωρίς αντανακλάσεις.</p>
+        <div class="capture-buttons">
+          <button type="button" id="useSystemCamera" class="capture-fallback">Κανονική κάμερα</button>
+          <button type="button" id="captureCardShot" class="capture-shutter" aria-label="Λήψη φωτογραφίας" disabled><span></span></button>
+          <span class="capture-spacer" aria-hidden="true"></span>
+        </div>
+      </div>
+    </div>`;
+    document.body.appendChild(modal);
+    document.documentElement.classList.add('camera-open');
+    modal.querySelector('#closeInlineCamera').onclick = closeInlineCamera;
+    modal.querySelector('#useSystemCamera').onclick = () => {
+      closeInlineCamera();
+      document.getElementById('cameraInput')?.click();
+    };
+    modal.querySelector('#captureCardShot').onclick = captureInlinePhoto;
+    modal.addEventListener('keydown', event => { if (event.key === 'Escape') {event.preventDefault();closeInlineCamera();} });
+    modal.querySelector('#closeInlineCamera').focus({preventScroll:true});
+    const video = modal.querySelector('#liveCamera');
+    const msg = modal.querySelector('#cameraMessage');
+    try {
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}}});
+      } catch (firstError) {
+        // Κάποια κινητά απορρίπτουν τις προτεινόμενες ρυθμίσεις.
+        if (firstError.name !== 'OverconstrainedError' && firstError.name !== 'NotFoundError') throw firstError;
+        stream = await navigator.mediaDevices.getUserMedia({audio:false,video:true});
+      }
+      if (session !== cameraSession || !modal.isConnected) {
+        stream.getTracks().forEach(track => track.stop());
+        return;
+      }
+      cameraStream = stream;
+      video.srcObject = stream;
+      await video.play();
+      if (session !== cameraSession || !modal.isConnected) return;
+      modal.querySelector('#captureCardShot').disabled = false;
+      msg.textContent = 'Τοποθέτησε την κάρτα στο πλαίσιο';
+    } catch (error) {
+      if (session !== cameraSession || !modal.isConnected) return;
+      console.warn('Αδυναμία πρόσβασης στην κάμερα', error);
+      const reason = error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError'
+        ? 'Δεν επιτράπηκε η πρόσβαση στην κάμερα. Έλεγξε την άδεια κάμερας στις ρυθμίσεις του Chrome.'
+        : error.name === 'NotFoundError'
+          ? 'Δεν βρέθηκε διαθέσιμη κάμερα.'
+          : 'Δεν μπόρεσε να ανοίξει η κάμερα της εφαρμογής.';
+      msg.textContent = reason + ' Μπορείς να χρησιμοποιήσεις την «Κανονική κάμερα».';
+      msg.classList.add('capture-error');
+    }
+  }
+  async function captureInlinePhoto() {
+    const modal = document.getElementById('inlineCameraModal');
+    if (!modal || !cameraStream) return;
+    const button = modal.querySelector('#captureCardShot');
+    const video = modal.querySelector('#liveCamera');
+    const guide = modal.querySelector('#cardGuide');
+    const msg = modal.querySelector('#cameraMessage');
+    if (!video.videoWidth || !video.videoHeight || video.readyState < 2) {
+      msg.textContent = 'Περίμενε λίγο να εμφανιστεί η εικόνα της κάμερας.';
+      return;
+    }
+    button.disabled = true;
+    msg.textContent = 'Επεξεργασία φωτογραφίας…';
+    try {
+      // Αντιστοίχιση του CSS object-fit:cover στις πραγματικές διαστάσεις video.
+      // Περικόπτουμε ΜΟΝΟ το τμήμα που ο χρήστης βλέπει μέσα στο περίγραμμα.
+      const vb = video.getBoundingClientRect();
+      const gb = guide.getBoundingClientRect();
+      const scale = Math.max(vb.width / video.videoWidth, vb.height / video.videoHeight);
+      const leftCrop = (video.videoWidth * scale - vb.width) / 2;
+      const topCrop = (video.videoHeight * scale - vb.height) / 2;
+      const x = Math.max(0, (gb.left - vb.left + leftCrop) / scale);
+      const y = Math.max(0, (gb.top - vb.top + topCrop) / scale);
+      const w = Math.min(video.videoWidth - x, gb.width / scale);
+      const h = Math.min(video.videoHeight - y, gb.height / scale);
+      if (!Number.isFinite(w) || !Number.isFinite(h) || w < 120 || h < 65) {
+        throw new Error('Το πλαίσιο είναι υπερβολικά μικρό.');
+      }
+      const resize = Math.min(1, 2800 / Math.max(w, h));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(w * resize));
+      canvas.height = Math.max(1, Math.round(h * resize));
+      const ctx = canvas.getContext('2d', {alpha:false});
+      if (!ctx) throw new Error('Δεν υποστηρίζεται η επεξεργασία εικόνας.');
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(video, x, y, w, h, 0, 0, canvas.width, canvas.height);
+      const blob = await new Promise((resolve, reject) => canvas.toBlob(
+        b => b ? resolve(b) : reject(new Error('Η φωτογραφία δεν αποθηκεύτηκε.')), 'image/jpeg', .94
+      ));
+      // Η κάμερα σταματά αμέσως. Μετά εκτελείται ο υπάρχων κώδικας OCR 6.
+      closeInlineCamera();
+      await handlePhoto(new File([blob], 'business-card.jpg', {type:'image/jpeg'}));
+    } catch (error) {
+      console.error('Σφάλμα λήψης', error);
+      if (modal.isConnected) {
+        msg.textContent = 'Δεν έγινε λήψη. Δοκίμασε ξανά ή χρησιμοποίησε την κανονική κάμερα.';
+        button.disabled = false;
+      }
+    }
+  }
+  // Σταμάτημα του video όταν ο χρήστης αλλάξει εφαρμογή ή καρτέλα.
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && document.getElementById('inlineCameraModal')) closeInlineCamera();
+  });
 
   async function handlePhoto(file) {
     if (!file) return;
@@ -543,6 +702,7 @@
     catch(e){console.error(e);error.textContent='Δεν μπόρεσε να αποθηκευτεί. Ίσως ο χώρος αποθήκευσης του κινητού είναι γεμάτος.';btn.disabled=false;}
   }
   async function showSettings() {
+    closeInlineCamera();
     releasePhotoURL();releaseListURLs();draft=null;editingId=null;navActive('settings');
     const contacts=await allContacts();
     main.innerHTML=`<div class="page-head"><button class="back-btn" id="backList" type="button" aria-label="Επιστροφή">‹</button><div><h1 class="page-title">Αρχείο & αντίγραφα</h1><div class="sub">${contacts.length} αποθηκευμένες κάρτες</div></div></div>

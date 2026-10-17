@@ -8,3 +8,27 @@
 
 /* OCR 6 — μεταφορά αριθμού από σταθερά σε Fax */
 .fax-choice-block{grid-column:1/-1;margin-top:-7px}.fax-choices{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px}.fax-choice{background:#eaf4fc;color:#174b68;border:1px solid #b9d3e6;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:750}.fax-choice:focus-visible{outline:3px solid #2383a6}
+
+
+/* OCR 7 — ενσωματωμένη κάμερα με ζωντανό οριζόντιο οδηγό κάρτας */
+html.camera-open,html.camera-open body{overflow:hidden!important;overscroll-behavior:none}
+.capture-modal{position:fixed;inset:0;z-index:1000;color:#fff;background:#061926;display:flex;justify-content:center;font-family:inherit}
+.capture-shell{height:100vh;height:100dvh;max-width:900px;width:100%;display:flex;flex-direction:column;min-height:0;background:#081f2b}
+.capture-topbar{flex-shrink:0;display:flex;align-items:center;gap:15px;padding:calc(11px + env(safe-area-inset-top)) 19px 13px;background:#10304b}
+.capture-close{width:44px;height:44px;flex-shrink:0;border:1px solid #6b8c9c;border-radius:13px;background:#244962;color:#fff;font-size:24px;display:grid;place-items:center;cursor:pointer}
+.capture-heading{display:flex;flex-direction:column;gap:3px;font-size:17px}.capture-heading small{color:#bad2dc;font-size:12px}
+.capture-stage{position:relative;flex:1;min-height:0;overflow:hidden;background:linear-gradient(120deg,#162e40,#293b44)}
+.capture-stage video{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+.capture-guide{box-sizing:border-box;pointer-events:none;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(91%,660px);aspect-ratio:1.75/1;max-height:83%;border:2px solid rgba(255,255,255,.87);border-radius:12px;box-shadow:0 0 0 200vmax rgba(4,15,23,.46),0 0 26px rgba(4,15,23,.42);z-index:1}
+.guide-corner{position:absolute;width:30px;height:30px;border-color:#62f2e1;border-style:solid}.guide-corner.tl{top:-3px;left:-3px;border-width:5px 0 0 5px;border-top-left-radius:10px}.guide-corner.tr{top:-3px;right:-3px;border-width:5px 5px 0 0;border-top-right-radius:10px}.guide-corner.bl{bottom:-3px;left:-3px;border-width:0 0 5px 5px;border-bottom-left-radius:10px}.guide-corner.br{bottom:-3px;right:-3px;border-width:0 5px 5px 0;border-bottom-right-radius:10px}
+.capture-tip{position:absolute;bottom:12px;left:12px;right:12px;margin:0;z-index:2;padding:9px 12px;border-radius:10px;background:rgba(4,22,34,.78);color:#fff;text-align:center;font-size:12px;line-height:1.4;pointer-events:none}
+.capture-tip.capture-error{background:#803d34}
+.capture-footer{flex-shrink:0;padding:13px 16px calc(17px + env(safe-area-inset-bottom));background:#10304b}
+.capture-footer>p{margin:0 0 12px;text-align:center;color:#d7e5ec;font-size:12px;line-height:1.4}
+.capture-buttons{display:grid;grid-template-columns:1fr 88px 1fr;align-items:center;gap:12px;min-height:80px}
+.capture-fallback{border:1px solid #7294a3;border-radius:12px;background:#21465c;color:#fff;padding:12px 8px;font-size:12px;font-weight:700;cursor:pointer}
+.capture-shutter{height:76px;width:76px;border-radius:50%;border:4px solid #e3fcf5;background:transparent;display:grid;place-items:center;margin:auto;cursor:pointer;touch-action:manipulation}
+.capture-shutter span{display:block;background:#fff;border-radius:50%;width:58px;height:58px}
+.capture-shutter:disabled{opacity:.38;cursor:wait}
+.capture-close:focus-visible,.capture-fallback:focus-visible,.capture-shutter:focus-visible{outline:3px solid #65d3cf;outline-offset:3px}
+@media(orientation:landscape) and (max-height:600px){.capture-topbar{padding:4px 15px}.capture-close{width:37px;height:37px}.capture-footer{padding:4px 12px calc(5px + env(safe-area-inset-bottom))}.capture-footer>p{display:none}.capture-buttons{min-height:57px;grid-template-columns:1fr 62px 1fr}.capture-shutter{height:54px;width:54px;border-width:3px}.capture-shutter span{width:40px;height:40px}.capture-guide{width:min(76%,80vh,600px);max-height:80%}.capture-tip{bottom:5px;padding:4px 8px}}
