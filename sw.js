@@ -1,6 +1,6 @@
 /* v11: network-first για ασφαλή ενημέρωση της εγκατεστημένης PWA. */
-const CACHE_NAME = 'gn-verias-visitcards-v12';
-const SHELL = ['./','./index.html','./styles.css?v=12','./app.js?v=12','./manifest.webmanifest','./assets/icon-192.png','./assets/icon-512.png'];
+const CACHE_NAME = 'gn-verias-visitcards-v13';
+const SHELL = ['./','./index.html','./styles.css?v=13','./app.js?v=13','./manifest.webmanifest','./assets/icon-192.png','./assets/icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME)
     .then(cache => cache.addAll(SHELL))

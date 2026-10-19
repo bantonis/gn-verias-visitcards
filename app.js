@@ -76,11 +76,12 @@
       let imageHTML = `<div class="contact-thumb contact-initials">${esc(initials(c.name||c.company))}</div>`;
       if (c.photoBlob instanceof Blob) { const u = URL.createObjectURL(c.photoBlob); listURLs.push(u); imageHTML = `<img class="contact-thumb" src="${u}" alt="Κάρτα του ${esc(c.name||c.company)}">`; }
       const desc = dataArray(c.assignments).slice(0,2).map(a => `${a.department||'Τμήμα'}${a.equipment?' · '+a.equipment:''}`).join(' / ');
-      const mobileCall = firstCallablePhone(c.mobile);
+      const mobileCalls = [...new Set(phoneNumbersIn(c.mobile).filter(n=>n.startsWith('69')))].slice(0,4);
       const fixedCalls = [...new Set(String(c.phone||'').split(/[/;,|]/).map(firstCallablePhone).filter(Boolean))].slice(0,3);
-      const callLinks = [mobileCall?`<a href="tel:${mobileCall}">📱 Κινητό</a>`:'',
+      const callLinks = [...mobileCalls.map((number,i)=>`<a href="tel:${number}">📱 Κινητό${mobileCalls.length>1?' '+(i+1):''}</a>`),
         ...fixedCalls.map((number,i)=>`<a href="tel:${number}">☎ Σταθερό${fixedCalls.length>1?' '+(i+1):''}</a>`)];
-      return `<article class="contact-card" tabindex="0" role="button" data-id="${esc(c.id)}" aria-label="Επεξεργασία ${esc(c.name||c.company)}">${imageHTML}<div class="contact-info"><h3>${esc(c.name||c.company||'Χωρίς όνομα')}</h3><div class="company">${esc(c.company||c.role||'Συνεργάτης')}</div><div class="contact-meta">${esc(desc||c.role||'Δεν έχουν δηλωθεί τμήματα / μηχανήματα')}</div><div class="quick-actions">${callLinks.join('')}${c.email?`<a href="mailto:${encodeURIComponent(c.email).replace('%40','@')}" aria-label="Email ${esc(c.name)}">✉ Email</a>`:''}</div></div><span class="contact-arrow" aria-hidden="true">›</span></article>`;
+      const mailLinks=splitEmailAddresses(c.email).slice(0,3).map((address,i)=>`<a href="mailto:${encodeURIComponent(address).replace('%40','@')}">✉ Email${splitEmailAddresses(c.email).length>1?' '+(i+1):''}</a>`);
+      return `<article class="contact-card" tabindex="0" role="button" data-id="${esc(c.id)}" aria-label="Επεξεργασία ${esc(c.name||c.company)}">${imageHTML}<div class="contact-info"><h3>${esc(c.name||c.company||'Χωρίς όνομα')}</h3><div class="company">${esc(c.company||c.role||'Συνεργάτης')}</div><div class="contact-meta">${esc(desc||c.role||'Δεν έχουν δηλωθεί τμήματα / μηχανήματα')}</div><div class="quick-actions">${callLinks.join('')}${mailLinks.join('')}</div></div><span class="contact-arrow" aria-hidden="true">›</span></article>`;
     }).join('');
     list.querySelectorAll('.contact-card').forEach(card => {
       card.addEventListener('click', e => {if(!e.target.closest('a')) showForm(card.dataset.id);});
@@ -106,8 +107,8 @@
     draft.assignments = dataArray(draft.assignments).length ? draft.assignments : [{department:'',equipment:''}];
     navActive(id ? 'list' : 'new');
     main.innerHTML = `<div class="page-head"><button type="button" class="back-btn" id="backList" aria-label="Επιστροφή">‹</button><div><h1 class="page-title">${id?'Επεξεργασία κάρτας':'Νέα επαγγελματική κάρτα'}</h1><div class="sub">${id?'Διόρθωσε τα στοιχεία ή πρόσθεσε παρατηρήσεις':'Αυτόματη αναγνώριση και καταχώριση'}</div></div></div>
-      <section class="panel"><h2>01 · Φωτογραφία κάρτας</h2><div class="photo-area" id="photoArea">${previewHTML()}</div><div class="photo-actions"><button type="button" class="btn btn-primary" id="takePhoto">📷 Φωτογράφιση</button><button type="button" class="btn btn-outline" id="choosePhoto">▧ Από συλλογή</button></div><input class="file-input" type="file" accept="image/*" capture="environment" id="cameraInput"><input class="file-input" type="file" accept="image/*" id="galleryInput"><div id="ocrStatus" class="ocr-bar ${draft.photoBlob?'':'hidden'}">${draft.photoBlob?'Μπορείς να επαναλάβεις την αναγνώριση αν χρειάζεται.':' '}<br><button class="btn btn-outline" id="retryOCR" type="button" ${!draft.photoBlob?'disabled':''}>↻ Αναγνώριση κειμένου</button></div><p class="hint">Έκδοση OCR 12: κανονική κάμερα POCO και crop πριν από το OCR, με προσεκτικό έλεγχο επωνυμίας. Διόρθωσε το πλαίσιο περικοπής με το δάχτυλο αν χρειάζεται. Διατηρούνται οι δύο αναγνώσεις (ελληνικά + αγγλικά και μόνο ελληνικά), με βελτίωση αντίθεσης. Κράτησε την κάρτα επίπεδη, χωρίς αντανακλάσεις, και γέμισε το κάδρο. Η αναγνώριση γίνεται στη συσκευή και απαιτεί διαδίκτυο για την αρχική λήψη των γλωσσών. Έλεγξε τα στοιχεία πριν από την αποθήκευση. Αν το όνομα είχε καταχωριστεί λάθος παλαιότερα, μπορείς να το σβήσεις και να ξαναπατήσεις OCR ή να διαλέξεις πρόταση.</p></section>
-      <section class="panel"><h2>02 · Στοιχεία επικοινωνίας <small>— διορθώνονται</small></h2><div class="field-grid">${field('name','Ονοματεπώνυμο',{full:true,placeholder:'Όνομα και επώνυμο'})}<div id="nameSuggestions" class="name-suggestion-block"></div>${field('company','Εταιρεία',{full:true,placeholder:'Εταιρεία / προμηθευτής'})}<div id="companySuggestions" class="company-suggestion-block"></div>${field('role','Ιδιότητα',{full:true,placeholder:'π.χ. Τεχνικός'})}${field('phone','Σταθερά τηλέφωνα',{full:true,placeholder:'π.χ. 210 4809673 / 210 4809674'})}${field('mobile','Κινητό τηλέφωνο',{type:'tel'})}${field('fax','Fax',{type:'tel'})}<div id="faxSuggestions" class="fax-choice-block"></div>${field('address','Διεύθυνση',{full:true,placeholder:'Οδός, αριθμός, Τ.Κ., πόλη'})}${field('email','Email',{full:true,type:'email',autocomplete:'email'})}${field('website','Ιστοσελίδα',{full:true,placeholder:'www.example.gr'})}</div></section>
+      <section class="panel"><h2>01 · Φωτογραφία κάρτας</h2><div class="photo-area" id="photoArea">${previewHTML()}</div><div class="photo-actions"><button type="button" class="btn btn-primary" id="takePhoto">📷 Φωτογράφιση</button><button type="button" class="btn btn-outline" id="choosePhoto">▧ Από συλλογή</button></div><input class="file-input" type="file" accept="image/*" capture="environment" id="cameraInput"><input class="file-input" type="file" accept="image/*" id="galleryInput"><div id="ocrStatus" class="ocr-bar ${draft.photoBlob?'':'hidden'}">${draft.photoBlob?'Μπορείς να επαναλάβεις την αναγνώριση αν χρειάζεται.':' '}<br><button class="btn btn-outline" id="retryOCR" type="button" ${!draft.photoBlob?'disabled':''}>↻ Αναγνώριση κειμένου</button></div><p class="hint">Έκδοση OCR 13: κανονική κάμερα POCO και crop πριν από το OCR, με προσεκτικό έλεγχο επωνυμίας. Διόρθωσε το πλαίσιο περικοπής με το δάχτυλο αν χρειάζεται. Διατηρούνται οι δύο αναγνώσεις (ελληνικά + αγγλικά και μόνο ελληνικά), με βελτίωση αντίθεσης. Κράτησε την κάρτα επίπεδη, χωρίς αντανακλάσεις, και γέμισε το κάδρο. Η αναγνώριση γίνεται στη συσκευή και απαιτεί διαδίκτυο για την αρχική λήψη των γλωσσών. Έλεγξε τα στοιχεία πριν από την αποθήκευση. Αν το όνομα είχε καταχωριστεί λάθος παλαιότερα, μπορείς να το σβήσεις και να ξαναπατήσεις OCR ή να διαλέξεις πρόταση.</p></section>
+      <section class="panel"><h2>02 · Στοιχεία επικοινωνίας <small>— διορθώνονται</small></h2><div class="field-grid">${field('name','Ονοματεπώνυμο',{full:true,placeholder:'Όνομα και επώνυμο'})}<div id="nameSuggestions" class="name-suggestion-block"></div>${field('company','Εταιρεία',{full:true,placeholder:'Εταιρεία / προμηθευτής'})}<div id="companySuggestions" class="company-suggestion-block"></div>${field('role','Ιδιότητα',{full:true,placeholder:'π.χ. Τεχνικός'})}${field('phone','Σταθερά τηλέφωνα',{full:true,placeholder:'π.χ. 210 4809673 / 210 4809674'})}${field('mobile','Κινητά τηλέφωνα',{full:true,type:'tel',placeholder:'π.χ. 6980 569382 / 6945 770558'})}${field('fax','Fax',{type:'tel'})}<div id="faxSuggestions" class="fax-choice-block"></div>${field('address','Διεύθυνση',{full:true,placeholder:'Οδός, αριθμός, Τ.Κ., πόλη'})}${field('email','Email (ένα ή περισσότερα)',{full:true,placeholder:'π.χ. name@company.gr / info@company.gr'})}${field('website','Ιστοσελίδα',{full:true,placeholder:'www.example.gr'})}</div></section>
       <section class="panel"><h2>03 · Τμήματα & μηχανήματα</h2><p class="panel-tip">Ο ίδιος τεχνικός μπορεί να υποστηρίζει πολλά μηχανήματα σε διαφορετικά τμήματα.</p><div id="assignments">${assignmentsHTML()}</div><datalist id="knownDepartments"><option value="Τεχνική Υπηρεσία"><option value="Ακτινολογικό"><option value="Χειρουργεία"><option value="ΜΕΘ"><option value="Καρδιολογικό"><option value="ΤΕΠ"><option value="Εργαστήρια"><option value="Φυσικοθεραπεία"><option value="Μικροβιολογικό"><option value="Αποστείρωση"><option value="Αιμοδοσία"><option value="Πληροφορική"></datalist><button type="button" class="btn btn-outline" id="addAssignment">＋ Προσθήκη μηχανήματος</button></section>
       <section class="panel"><h2>04 · Παρατηρήσεις</h2><div class="field"><label for="f_notes">Σημειώσεις / οδηγίες επικοινωνίας / ιστορικό</label><textarea id="f_notes" placeholder="π.χ. Συντηρεί τον υπέρηχο του ΤΕΠ. Τηλεφωνούμε πρώτα στο κινητό…">${esc(draft.notes||'')}</textarea></div><p class="hint">Μη γράφεις στοιχεία ασθενών ή άλλες ευαίσθητες πληροφορίες.</p><details class="raw-details"><summary>Προβολή του κειμένου OCR (για έλεγχο)</summary><div class="field"><textarea id="f_rawText" placeholder="Το αναγνωρισμένο κείμενο εμφανίζεται εδώ…">${esc(draft.rawText||'')}</textarea></div></details></section>
       <div class="action-bar"><button type="button" class="btn btn-primary btn-block" id="saveCard">✓ Αποθήκευση κάρτας</button>${id?'<button type="button" class="btn btn-danger" id="deleteCard" aria-label="Διαγραφή κάρτας">🗑</button>':''}</div><div id="formError" class="error-inline" aria-live="polite"></div>${id?`<div class="last-save">Τελευταία ενημέρωση: ${esc(fmtDate(draft.updatedAt))}</div>`:''}`;
@@ -447,8 +448,8 @@
   const nameNormalize = str => stripForSearch(str).replace(/\s+/g,' ').trim();
   const NAME_ADDRESS_WORDS = /(?:^|\s)(?:οδος|οδ|λεωφορος|λεωφ|λεωφ\.|διευθυνση|διευθ|ταχυδρομικος|ταχ|ταχ\.|τ\.?κ\.?|αριθμος|αρ\.|περιοχη|εδρα|οικισμος|street|avenue|address|road|postcode|zip)(?:$|\s|[.:])/i;
   const NAME_ADDRESS_PLACES = /(?:^|\s)(?:αθηνα|θεσσαλονικη|αλεξανδρουπολη|βεροια|πατρα|καβαλα|δραμα|πειραιας|σερρες|ηρακλειο|ιωαννινα|κοζανη|ελλαδα|greece|thessaloniki|athens)(?:$|\s)/i;
-  const NAME_NONPERSON = /(καθηγητ|παιδιατρ|νευρολογ|αναπτυξιολογ|ομοτιμ|επικουρ|professor|neurology|pediatric|paediatric|developmental|τεχνικ|μηχανικ|συντηρησ|υπευθυν|προισταμ|πωλητ|service|engineer|sales|support|manager|εταιρει|εμπορικ|ανωνυμ|βιομηχαν|βιοτεχν|επιχειρη|ιατρικ|εξοπλισμ|μηχανημ|τεχνολογ|νοσοκομ|εργαστηρ|ανταλλακτικ|ομιλ|γραφει|προμηθει|συστημ|φυσικοθεραπε|αποκαταστασ|παθολογ|ογκολ|χειρουργ|καρδιολογ|ακτινολογ|διευθυντ|καρτεσ|καρτα|επικοινωνι|παροχ|πελατ|προιον|services|solutions|company|limited|international|information|medical|equipment|technology|hospital)/i;
-  const ROLE_WORDS = /(καθηγητ|παιδιατρ|νευρολογ|αναπτυξιολογ|professor|neurolog|pediatric|paediatric|τεχνικ|μηχανικ|υπευθυν|πωλητ|πωλησε|διευθυντ|προισταμ|παθολογ|ογκoλογ|ογκολoγ|ογκολo|ογκολ|ιατρ|χειρουργ|καρδιολογ|ακτινολογ|βιοιατρ|service|engineer|technician|sales|manager|director|support|doctor|physician)/i;
+  const NAME_NONPERSON = /(τομεα|βορειου ελλαδ|βιοτεχνολογ|biotechnolog|biotech|systems|analytica|sales|επιστημονικ|υποστηριξ|καθηγητ|παιδιατρ|νευρολογ|αναπτυξιολογ|ομοτιμ|επικουρ|professor|neurology|pediatric|paediatric|developmental|τεχνικ|μηχανικ|συντηρησ|υπευθυν|προισταμ|πωλητ|service|engineer|sales|support|manager|εταιρει|εμπορικ|ανωνυμ|βιομηχαν|βιοτεχν|επιχειρη|ιατρικ|εξοπλισμ|μηχανημ|τεχνολογ|νοσοκομ|εργαστηρ|ανταλλακτικ|ομιλ|γραφει|προμηθει|συστημ|φυσικοθεραπε|αποκαταστασ|παθολογ|ογκολ|χειρουργ|καρδιολογ|ακτινολογ|διευθυντ|καρτεσ|καρτα|επικοινωνι|παροχ|πελατ|προιον|services|solutions|company|limited|international|information|medical|equipment|technology|hospital)/i;
+  const ROLE_WORDS = /(υπευθυν|επιστημονικ|πωλησ|τομεα|καθηγητ|παιδιατρ|νευρολογ|αναπτυξιολογ|professor|neurolog|pediatric|paediatric|τεχνικ|μηχανικ|υπευθυν|πωλητ|πωλησε|διευθυντ|προισταμ|παθολογ|ογκoλογ|ογκολoγ|ογκολo|ογκολ|ιατρ|χειρουργ|καρδιολογ|ακτινολογ|βιοιατρ|service|engineer|technician|sales|manager|director|support|doctor|physician)/i;
   function looksLikeAddress(value) {
     const norm = nameNormalize(value).replace(/[,;]/g,' ');
     return /\d/.test(value) || NAME_ADDRESS_WORDS.test(norm) || NAME_ADDRESS_PLACES.test(norm);
@@ -459,6 +460,9 @@
     // Οι τίτλοι Δρ./Dr. δεν είναι μέρος του ονοματεπώνυμου.
     const hasDoctorTitle=/^(?:δρ|δρς|dr|doctor)\.?\s+/iu.test(value);
     if(hasDoctorTitle) value=value.replace(/^(?:δρ|δρς|dr|doctor)\.?\s+/iu,'').trim();
+    // OCR 13: Προσωπικό όνομα με επαγγελματικό τίτλο, π.χ. «Δήμητρα Κωτσαλή, DVM».
+    const hadCredential=/(?:,\s*|\s+)(?:D\.?V\.?M\.?|M\.?D\.?|Ph\.?D\.?|M\.?Sc\.?|B\.?Sc\.?|M\.?B\.?A\.?|D\.?D\.?S\.?)[.,]?$/iu.test(value);
+    if(hadCredential) value=value.replace(/(?:,\s*|\s+)(?:D\.?V\.?M\.?|M\.?D\.?|Ph\.?D\.?|M\.?Sc\.?|B\.?Sc\.?|M\.?B\.?A\.?|D\.?D\.?S\.?)[.,]?$/iu,'').trim();
     if (value.length < 7 || value.length > 56 || looksLikeAddress(value)) return null;
     // OCR 12: οι γραμμές ειδικοτήτων (Καθηγητής Παιδιατρικής κ.λπ.)
     // δεν είναι ποτέ προσωπικά ονόματα, ακόμη κι αν έχουν δύο λέξεις.
@@ -469,6 +473,7 @@
     if (/[^\p{L}\p{M}\s.'’΄-]/u.test(value)) return null;
     const words=value.split(/\s+/).filter(Boolean);
     if (words.length<2 || words.length>4) return null;
+    if(words.length===2 && words.some(w=>(w.match(/\p{L}/gu)||[]).length<3)) return null;
     if (words.some(w=>!/(?:^[\p{L}\p{M}]{2,}(?:[-’'][\p{L}\p{M}]+)?$|^[\p{L}]\.$)/u.test(w))) return null;
     if (words.filter(w=>/^[\p{L}\p{M}]{2,}/u.test(w)).length<2) return null;
     const letters=(value.match(/\p{L}/gu)||[]).length;
@@ -476,6 +481,10 @@
     if (letters<8 || greek/letters<.5) return null;
     let score = words.length===2 ? 5.1 : words.length===3 ? 4.6 : 3.8;
     if (hasDoctorTitle) score += 3.4;
+    if (hadCredential) score += 2.7;
+    // Τα τυπογραφικά λογότυπα δύο κεφαλαίων λέξεων δεν ταυτίζονται αυτόματα με άνθρωπο.
+    const allUpper=value===value.toLocaleUpperCase('el-GR') && (value.match(/\p{L}/gu)||[]).length>=10;
+    if(allUpper && !hasDoctorTitle && !hadCredential) score-=6.4;
     if (/^(?:[\p{L}]{3,})\s+[\p{L}]\.\s+[\p{L}]{3,}$/u.test(value)) score += 2.6; // Όνομα Α. Επώνυμο
     if (index<4) score += 2.1-index*.35;
     if (index>=7) score -= .6;
@@ -484,6 +493,7 @@
     const nearby=lines.slice(Math.max(0,index-2),Math.min(lines.length,index+3))
       .filter((_,i)=>Math.max(0,index-2)+i!==index);
     if (nearby.some(l=>ROLE_WORDS.test(nameNormalize(l)))) score+=2.1;
+    if (hadCredential && nearby.some(l=>/πωλησ|υπευθυν|υποστηριξ/iu.test(nameNormalize(l))))score+=.5;
     // Διευθύνσεις που έχουν μόνο γράμματα (π.χ. Παύλου Μελά) συνήθως
     // συνοδεύονται από διεύθυνση, πόλη ή ταχυδρομικό κώδικα.
     const nearAddress=nearby.some(l=>looksLikeAddress(l) && !/^(?:69|2)\d{8}$/.test(l.replace(/\D/g,'')));
@@ -545,6 +555,8 @@
   // διεύθυνσης, τηλεφώνων ή ονοματεπωνύμων. Η αμφιβολία εμφανίζεται στον χρήστη.
   const COMPANY_STRONG = /(?:^|\s)(?:α\.?\s*ε\.?|αβεε|ε\.?\s*π\.?\s*ε\.?|ι\.?\s*κ\.?\s*ε\.?|ο\.?\s*ε\.?|ε\.?\s*ε\.?|ltd\.?|limited|inc\.?|gmbh|s\.?a\.?|company|εταιρεια)(?=\s|$|[.,])/i;
   const COMPANY_TERMS = /(?:medical|medic|hospital|clinic|health|healthcare|tech(?:nologies)?|systems|solutions|industr|group|engineering|equipment|electronic|diagnostic|laborator|automation|service\s+group|biomedical|μηχανηματ|συστηματ|ιατρικ|νοσοκομ|κλινικ|διαγνωστικ|βιοιατρικ|τεχνολογ|ηλεκτρονικ|εμπορικ|βιομηχαν|εξοπλισμ|εργαστηριακ|αντιπροσωπει)/i;
+  // Στις κάρτες το «BIOTECHNOLOGY SYSTEMS» είναι περιγραφή της BioAnalytica, όχι όνομα εταιρείας.
+  const COMPANY_TAGLINE = /^(?:biotechnology systems|biomedical systems|medical equipment|technology systems|biotechnology|medical devices|clinical solutions|engineering solutions|τεχνολογικα συστηματα)$/i;
   const COMPANY_GENERIC = /^(?:εταιρεια|company|λογοτυπο|logo|επαγγελματικη καρτα|τεχνικη υποστηριξη|τεχνικο τμημα|τμημα προμηθειων|επικοινωνια|στοιχεια επικοινωνιας|επικοινωνηστε μαζι μας|διευθυνση|website|ιστοσελιδα|email|παρατηρησεις|υπηρεσιες|προιοντα|γραφεια|office|contact|support|sales|fax|tel)$/i;
   const COMPANY_JOB = /(?:^|\s)(?:τεχνικος|μηχανικος|υπευθυνος|πωλητης|διευθυντης|παθολογος|ογκoλογος|ογκολoγος|ιατρος|secretary|technician|engineer|manager|director|doctor|physician)(?:$|\s)/i;
   // Στελέχη, ειδικότητες, ονόματα τμημάτων κ.λπ. δεν γίνονται εταιρείες
@@ -601,6 +613,9 @@
     if(asPerson?.score>=6.3&&!strong&&!industry&&!explicitlyLabeled)return null;
     if(/^(?:ΔΡ|DR)\.?\s+/iu.test(value))return null;
     let score=2.7;
+    const followsWithTagline=!!(lines[index+1] && COMPANY_TAGLINE.test(nameNormalize(lines[index+1])));
+    if(COMPANY_TAGLINE.test(norm))score-=5.5;
+    if(followsWithTagline)score+=5.4;
     if(explicitlyLabeled)score+=5;
     if(strong)score+=4.7;
     if(industry)score+=3.4;
@@ -611,7 +626,7 @@
     const capitals=(value.match(/[Α-ΩΆΈΉΊΌΎΏA-Z]/g)||[]).length;
     if(letters>=5 && capitals/letters>.74)score+=1.2;
     if(/[&®™]/.test(value))score+=.4;
-    return {name:value, score:Math.round(score*100)/100};
+    return {name:value, score:Math.round(score*100)/100, followsWithTagline};
   }
   function extractCompanyCandidates(text, recognizedNames=[]) {
     const lines=String(text||'').replace(/[\u200B-\u200D]/g,'').split(/[\r\n]+/)
@@ -635,7 +650,7 @@
     texts.forEach((text,reading)=>extractCompanyCandidates(text,recognizedNames).forEach(c=>{
       const key=nameNormalize(c.name);
       const prev=found.get(key);
-      if(prev){prev.score=Math.max(prev.score,c.score);prev.readings.add(reading);}
+      if(prev){prev.score=Math.max(prev.score,c.score);prev.followsWithTagline ||= c.followsWithTagline;prev.readings.add(reading);}
       else found.set(key,{...c,readings:new Set([reading])});
     }));
     return [...found.values()].map(c=>({name:c.name,score:c.score+(c.readings.size>1?1.4:0)}))
@@ -645,8 +660,9 @@
     const target=document.getElementById('companySuggestions');
     if(!target)return;
     target.replaceChildren();
-    const suggestions=candidates.filter(c=>c.score>=4.7 && (
-      COMPANY_STRONG.test(nameNormalize(c.name)) || COMPANY_TERMS.test(nameNormalize(c.name)) ||
+    const hasReliableBrand=candidates.some(c=>c.followsWithTagline && c.score>=9.5);
+    const suggestions=candidates.filter(c=>c.score>=4.7 && !(hasReliableBrand && COMPANY_TAGLINE.test(nameNormalize(c.name))) && (
+      c.followsWithTagline || COMPANY_STRONG.test(nameNormalize(c.name)) || COMPANY_TERMS.test(nameNormalize(c.name)) ||
       /^(?:[Α-ΩΆΈΉΊΌΎΏ]{4,}(?:\s+[Α-ΩΆΈΉΊΌΎΏ]{3,}){0,2})$/u.test(c.name)
     )).slice(0,5);
     if(!suggestions.length){
@@ -717,6 +733,7 @@
       return await new Promise((resolve,reject)=>cv.toBlob(b=>b?resolve(b):reject(new Error('Αδυναμία προετοιμασίας επικοινωνίας')),'image/png'));
     } finally {URL.revokeObjectURL(url);}
   }
+  const splitEmailAddresses = value => String(value||'').split(/\s*[/;,|]\s*/).map(v=>v.trim()).filter(Boolean);
   const emailQuality = value => {
     const email=String(value||'').trim().toLowerCase();
     if(!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(email))return 0;
@@ -768,7 +785,7 @@
       const grParsed = parseCard(greekText);
       const parsed = {...mixedParsed};
       let contactText='';
-      if(!parsed.mobile || emailQuality(parsed.email)<3) {
+      if ((mixedParsed.mobiles||[]).length<2 || (mixedParsed.emails||[]).length<2) {
         try {
           setOCRStatus('Έλεγχος κινητού και email στο κάτω μέρος…');
           const contactRegion=await prepareContactRegion(draft.photoBlob);
@@ -779,10 +796,8 @@
           });
           contactText=(await worker.recognize(contactRegion)).data?.text||'';
           const contactParsed=parseCard(contactText);
-          if(contactParsed.mobile && !parsed.mobile)parsed.mobile=contactParsed.mobile;
-          if(emailQuality(contactParsed.email)>emailQuality(parsed.email))parsed.email=contactParsed.email;
-          // Αν το email έχει αμφίβολο TLD, δεν το συμπληρώνουμε σιωπηλά.
-          if(emailQuality(parsed.email)<3)parsed.email='';
+          parsed.contactMobiles=contactParsed.mobiles||[];
+          parsed.contactEmails=contactParsed.emails||[];
         } catch(contactErr) {console.warn('Contact-region OCR fallback',contactErr);}
       }
       const nameCandidates = mergeNameCandidates(bilingual,greekText);
@@ -797,7 +812,7 @@
       const initialSecond=companyCandidates[1];
       const initialClear=initialBest?.score>=9.5 &&
         (!initialSecond || initialBest.score-initialSecond.score>=1.6) &&
-        (COMPANY_STRONG.test(nameNormalize(initialBest.name)) || COMPANY_TERMS.test(nameNormalize(initialBest.name)));
+        (initialBest.followsWithTagline || COMPANY_STRONG.test(nameNormalize(initialBest.name)) || COMPANY_TERMS.test(nameNormalize(initialBest.name)));
       if(!initialClear){
         try {
           setOCRStatus('3/3 · Έλεγχος λογότυπου για την εταιρεία…');
@@ -815,7 +830,7 @@
       // ποτέ μόνο επειδή ένα τυχαίο OCR token είναι με κεφαλαία.
       const topCompany=companyCandidates[0], runnerUp=companyCandidates[1];
       const topNorm=nameNormalize(topCompany?.name||'');
-      const credibleBrand=COMPANY_STRONG.test(topNorm)||COMPANY_TERMS.test(topNorm)||
+      const credibleBrand=topCompany?.followsWithTagline || COMPANY_STRONG.test(topNorm)||COMPANY_TERMS.test(topNorm)||
         /^(?:metropolitan hospital)$/i.test(topNorm);
       if(topCompany && credibleBrand && topCompany.score>=9.5 &&
          (!runnerUp || topCompany.score-runnerUp.score>=1.6))
@@ -831,12 +846,18 @@
       const combinedPhones = [...new Set([...(mixedParsed.landlines||[]), ...(grParsed.landlines||[])])].filter(p=>!faxNumbers.has(p)||commonPhoneFax.has(p)).slice(0,6);
       parsed.phone = combinedPhones.join(' / ');
       parsed.fax = [...faxNumbers].join(' / ');
-      if (!parsed.mobile && grParsed.mobile) parsed.mobile = grParsed.mobile;
+      // Πολλά κινητά/Email: ενώνουμε όλα τα τεκμηριωμένα στοιχεία από τις αναγνώσεις.
+      const mobilesMerged=[...new Set([...(mixedParsed.mobiles||[]), ...(grParsed.mobiles||[]), ...(parsed.contactMobiles||[])])].filter(n=>n.startsWith('69'));
+      const emailsMerged=[...new Set([...(mixedParsed.emails||[]), ...(grParsed.emails||[]), ...(parsed.contactEmails||[])])].filter(e=>emailQuality(e)>=3);
+      parsed.mobile=mobilesMerged.join(' / ');
+      parsed.email=emailsMerged.join(' / ');
       if (!parsed.address && grParsed.address) parsed.address = grParsed.address;
 
       // Κρατάμε τις χειροκίνητες διορθώσεις. Αλλά προφανείς διευθύνσεις που
       // μπήκαν στο «Όνομα» από παλιό OCR μπορούν να αντικατασταθούν.
       if (parsed.name && (looksLikeAddress(draft.name||'') ||
+        (draft.name && draft.company && nameNormalize(draft.name)===nameNormalize(draft.company)) ||
+        (draft.name && draft.name===draft.name.toLocaleUpperCase('el-GR') && /\p{L}{4,}\s+\p{L}{4,}/u.test(draft.name)) ||
         /(?:καθηγητ|παιδιατρ|νευρολογ|αναπτυξιολογ|professor|neurology)/i.test(nameNormalize(draft.name||'')))) draft.name = parsed.name;
       // Παλιό OCR έβαζε ως «Εταιρεία» το domain (π.χ. Doctor-barbounis).
       // Το διορθώνουμε μόνο όταν υπάρχει σαφής εταιρεία πάνω στην κάρτα.
@@ -844,12 +865,23 @@
         !COMPANY_TERMS.test(nameNormalize(draft.company)) &&
         (/(?:καθηγητ|παιδιατρ|νευρολογ|professor|developmental)/i.test(nameNormalize(draft.company)) ||
          /^(?:[\p{L}]{3,})\s+[\p{L}]\.?\s+[\p{L}]{3,}$/u.test(draft.company))) draft.company='';
+      if (parsed.company && draft.company && COMPANY_TAGLINE.test(nameNormalize(draft.company)) && parsed.company!==draft.company) draft.company=parsed.company;
       if (parsed.company && draft.company && draft.website) {
         const derived = draft.website.replace(/^https?:\/\//i,'').replace(/^www\./i,'').split('.')[0];
         if (nameNormalize(draft.company) === nameNormalize(derived)) draft.company = parsed.company;
       }
       for (const key of ['name','company','role','phone','mobile','fax','address','email','website'])
         if (!String(draft[key]||'').trim() && parsed[key]) draft[key]=parsed[key];
+      // Σε επανάληψη OCR ενισχύουμε ΕΝΑ ήδη αναγνωρισμένο κινητό/email
+      // με δεύτερο, μόνο όταν ο υπάρχων αριθμός/διεύθυνση επιβεβαιώνεται ξανά.
+      const previousMobiles=phoneNumbersIn(draft.mobile).filter(n=>n.startsWith('69'));
+      const extractedMobiles=phoneNumbersIn(parsed.mobile).filter(n=>n.startsWith('69'));
+      if(previousMobiles.length && extractedMobiles.length>previousMobiles.length &&
+         previousMobiles.every(n=>extractedMobiles.includes(n))) draft.mobile=extractedMobiles.join(' / ');
+      const previousEmails=splitEmailAddresses(draft.email);
+      const extractedEmails=splitEmailAddresses(parsed.email);
+      if(previousEmails.length && extractedEmails.length>previousEmails.length &&
+         previousEmails.every(e=>extractedEmails.includes(e.toLowerCase()))) draft.email=extractedEmails.join(' / ');
       // Επανάληψη OCR σε ήδη συμπληρωμένη κάρτα: αφαιρούμε από τα σταθερά
       // μόνο αριθμούς που ΕΠΙΒΕΒΑΙΩΘΗΚΑΝ ως fax από το τρέχον OCR.
       if(faxNumbers.size) {
@@ -876,11 +908,12 @@
   function parseCard(text) {
     const result={}; const clean=text.replace(/[\u200B-\u200D]/g,'');
     const lines=clean.split(/[\r\n]+/).map(line=>line.replace(/\s+/g,' ').trim()).filter(Boolean);
-    const email=clean.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-    if(email)result.email=email[0].toLowerCase();
-    const websiteLine=lines.find(l=>/^(?:https?:\/\/|www\.)/i.test(l));
-    const site=websiteLine?.match(/(?:https?:\/\/)?(?:www\.)?[a-z0-9-]+\.(?:gr|com|eu|net|org)(?:\/[\w/.-]*)?/i);
-    if(site) result.website=site[0];
+    const foundEmails = [...new Set([...clean.matchAll(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g)].map(m=>m[0].toLowerCase()))]
+      .filter(e=>emailQuality(e)>=3);
+    result.emails=foundEmails;
+    if(foundEmails.length)result.email=foundEmails.join(' / ');
+    const site=clean.match(/(?:https?:\/\/|www\.)[a-z0-9.-]+\.(?:gr|com|eu|net|org)(?:\/[\w/.-]*)?/i);
+    if(site)result.website=site[0];
     // OCR 6: Εντοπισμός της θέσης FAX σε κάθε γραμμή και όχι απλώς η
     // παρουσία της λέξης. Υποστηρίζονται ελληνικά/λατινικά «ομόγλυφα»
     // (FAX, FΑΧ, ΦΑΞ, ΦΑΧ) και αριθμός σε επόμενη γραμμή.
@@ -937,7 +970,8 @@
     });
     // Το fax δεν παραμένει στη λίστα των σταθερών όταν υπάρχει σαφής ετικέτα.
     const filteredLandlines=landlines.filter(n=>!faxes.includes(n) || sharedPhoneFax.has(n));
-    if(mobiles.length) result.mobile=mobiles[0];
+    result.mobiles=mobiles;
+    if(mobiles.length) result.mobile=mobiles.join(' / ');
     if(filteredLandlines.length) result.phone=filteredLandlines.join(' / ');
     if(faxes.length) result.fax=faxes.join(' / ');
     result.landlines=filteredLandlines;
@@ -958,11 +992,13 @@
     if (streetLine) result.address=streetLine+(zipLine && zipLine!==streetLine ? ', '+zipLine : '');
     else if (zipLine) result.address=zipLine;
     // OCR 12: Ιδιότητα, ιδίως ακαδημαϊκοί τίτλοι δίπλα στο ονοματεπώνυμο.
-    const role=lines.find(l=>/(?:^|[^\p{L}])(καθηγητ[ηή]ς|καθηγητρια|παιδιατρ[οό]ς|τεχνικ[οό]ς|τεχνικ[ηή]|μηχανικ[οό]ς|πωλητ[ηή]ς|υπε[υύ]θυνος|παθολ[οό]γος|ογκολ[οό]γος|ιατρ[οό]ς|διευθυντ[ηή]ς|service|engineer|technician|doctor|physician|professor)(?=$|[^\p{L}])/iu.test(l));
+    const role=lines.find(l=>/(?:^|[^\p{L}])(υπε[υύ]θυν[\p{L}]*|πωλησ[\p{L}]*|καθηγητ[ηή]ς|καθηγητρια|παιδιατρ[οό]ς|τεχνικ[οό]ς|τεχνικ[ηή]|μηχανικ[οό]ς|πωλητ[ηή]ς|υπε[υύ]θυνος|παθολ[οό]γος|ογκολ[οό]γος|ιατρ[οό]ς|διευθυντ[ηή]ς|service|engineer|technician|doctor|physician|professor)(?=$|[^\p{L}])/iu.test(l));
     if(role) {
       const i=lines.indexOf(role);
       const next=lines[i+1]||'';
-      if(/καθηγητ/iu.test(role) && /(?:νευρολογ|αναπτυξιολογ|α\.?π\.?θ\.?)/iu.test(next) && !looksLikeAddress(next))
+      if(/υπε[υύ]θυν/iu.test(role) && /τομ[εέ]ας|βορ[εέ]ιου\s+ελλ[αά]δος/iu.test(next) && !looksLikeAddress(next))
+        result.role=role+', '+next;
+      else if(/καθηγητ/iu.test(role) && /(?:νευρολογ|αναπτυξιολογ|α\.?π\.?θ\.?)/iu.test(next) && !looksLikeAddress(next))
         result.role=role+', '+next;
       else result.role = /παθολ[οό]γος/iu.test(role) && /ογκολ[οό]γος/iu.test(next)
         ? 'Παθολόγος – Ογκολόγος' : role;
@@ -980,7 +1016,7 @@
     if(ocrRunning){toast('Περίμενε να ολοκληρωθεί η αναγνώριση.');return;}
     syncDraft();const error=document.getElementById('formError');error.textContent='';
     if(!draft.name.trim() && !draft.company.trim()){error.textContent='Συμπλήρωσε τουλάχιστον ονοματεπώνυμο ή εταιρεία.';document.getElementById('f_name').focus();return;}
-    if(draft.email.trim()&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.email.trim())){error.textContent='Έλεγξε τη μορφή της διεύθυνσης email.';return;}
+    if(draft.email.trim() && (!splitEmailAddresses(draft.email).length || splitEmailAddresses(draft.email).some(e=>emailQuality(e)<1) || /@/.test(draft.email.replace(/[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}/gi,'')))){error.textContent='Έλεγξε τη μορφή των email (χώρισέ τα με / ή ;).';return;}
     draft.assignments=dataArray(draft.assignments).map(a=>({department:a.department.trim(),equipment:a.equipment.trim()})).filter(a=>a.department||a.equipment);
     draft.id=draft.id||nextId();draft.createdAt=draft.createdAt||new Date().toISOString();draft.updatedAt=new Date().toISOString();
     const btn=document.getElementById('saveCard');btn.disabled=true;
