@@ -11,6 +11,7 @@
   let photoURL = null;
   let listURLs = [];
   let ocrRunning = false;
+  let phoneReviewCandidates = [];
   let activeCropCleanup = null;
   let toastTimeout;
   const greekMonths = ['Ιαν','Φεβ','Μαρ','Απρ','Μαΐ','Ιουν','Ιουλ','Αυγ','Σεπ','Οκτ','Νοε','Δεκ'];
@@ -107,8 +108,8 @@
     draft.assignments = dataArray(draft.assignments).length ? draft.assignments : [{department:'',equipment:''}];
     navActive(id ? 'list' : 'new');
     main.innerHTML = `<div class="page-head"><button type="button" class="back-btn" id="backList" aria-label="Επιστροφή">‹</button><div><h1 class="page-title">${id?'Επεξεργασία κάρτας':'Νέα επαγγελματική κάρτα'}</h1><div class="sub">${id?'Διόρθωσε τα στοιχεία ή πρόσθεσε παρατηρήσεις':'Αυτόματη αναγνώριση και καταχώριση'}</div></div></div>
-      <section class="panel"><h2>01 · Φωτογραφία κάρτας</h2><div class="photo-area" id="photoArea">${previewHTML()}</div><div class="photo-actions"><button type="button" class="btn btn-primary" id="takePhoto">📷 Φωτογράφιση</button><button type="button" class="btn btn-outline" id="choosePhoto">▧ Από συλλογή</button></div><input class="file-input" type="file" accept="image/*" capture="environment" id="cameraInput"><input class="file-input" type="file" accept="image/*" id="galleryInput"><div id="ocrStatus" class="ocr-bar ${draft.photoBlob?'':'hidden'}">${draft.photoBlob?'Μπορείς να επαναλάβεις την αναγνώριση αν χρειάζεται.':' '}<br><button class="btn btn-outline" id="retryOCR" type="button" ${!draft.photoBlob?'disabled':''}>↻ Αναγνώριση κειμένου</button></div><p class="hint">Έκδοση OCR 13: κανονική κάμερα POCO και crop πριν από το OCR, με προσεκτικό έλεγχο επωνυμίας. Διόρθωσε το πλαίσιο περικοπής με το δάχτυλο αν χρειάζεται. Διατηρούνται οι δύο αναγνώσεις (ελληνικά + αγγλικά και μόνο ελληνικά), με βελτίωση αντίθεσης. Κράτησε την κάρτα επίπεδη, χωρίς αντανακλάσεις, και γέμισε το κάδρο. Η αναγνώριση γίνεται στη συσκευή και απαιτεί διαδίκτυο για την αρχική λήψη των γλωσσών. Έλεγξε τα στοιχεία πριν από την αποθήκευση. Αν το όνομα είχε καταχωριστεί λάθος παλαιότερα, μπορείς να το σβήσεις και να ξαναπατήσεις OCR ή να διαλέξεις πρόταση.</p></section>
-      <section class="panel"><h2>02 · Στοιχεία επικοινωνίας <small>— διορθώνονται</small></h2><div class="field-grid">${field('name','Ονοματεπώνυμο',{full:true,placeholder:'Όνομα και επώνυμο'})}<div id="nameSuggestions" class="name-suggestion-block"></div>${field('company','Εταιρεία',{full:true,placeholder:'Εταιρεία / προμηθευτής'})}<div id="companySuggestions" class="company-suggestion-block"></div>${field('role','Ιδιότητα',{full:true,placeholder:'π.χ. Τεχνικός'})}${field('phone','Σταθερά τηλέφωνα',{full:true,placeholder:'π.χ. 210 4809673 / 210 4809674'})}${field('mobile','Κινητά τηλέφωνα',{full:true,type:'tel',placeholder:'π.χ. 6980 569382 / 6945 770558'})}${field('fax','Fax',{type:'tel'})}<div id="faxSuggestions" class="fax-choice-block"></div>${field('address','Διεύθυνση',{full:true,placeholder:'Οδός, αριθμός, Τ.Κ., πόλη'})}${field('email','Email (ένα ή περισσότερα)',{full:true,placeholder:'π.χ. name@company.gr / info@company.gr'})}${field('website','Ιστοσελίδα',{full:true,placeholder:'www.example.gr'})}</div></section>
+      <section class="panel"><h2>01 · Φωτογραφία κάρτας</h2><div class="photo-area" id="photoArea">${previewHTML()}</div><div class="photo-actions"><button type="button" class="btn btn-primary" id="takePhoto">📷 Φωτογράφιση</button><button type="button" class="btn btn-outline" id="choosePhoto">▧ Από συλλογή</button></div><input class="file-input" type="file" accept="image/*" capture="environment" id="cameraInput"><input class="file-input" type="file" accept="image/*" id="galleryInput"><div id="ocrStatus" class="ocr-bar ${draft.photoBlob?'':'hidden'}">${draft.photoBlob?'Μπορείς να επαναλάβεις την αναγνώριση αν χρειάζεται.':' '}<br><button class="btn btn-outline" id="retryOCR" type="button" ${!draft.photoBlob?'disabled':''}>↻ Αναγνώριση κειμένου</button></div><p class="hint">Έκδοση OCR 14: κανονική κάμερα POCO και crop πριν από το OCR, με προσεκτικό έλεγχο επωνυμίας. Διόρθωσε το πλαίσιο περικοπής με το δάχτυλο αν χρειάζεται. Διατηρούνται οι δύο αναγνώσεις (ελληνικά + αγγλικά και μόνο ελληνικά), με βελτίωση αντίθεσης. Κράτησε την κάρτα επίπεδη, χωρίς αντανακλάσεις, και γέμισε το κάδρο. Η αναγνώριση γίνεται στη συσκευή και απαιτεί διαδίκτυο για την αρχική λήψη των γλωσσών. Έλεγξε τα στοιχεία πριν από την αποθήκευση. Αν το όνομα είχε καταχωριστεί λάθος παλαιότερα, μπορείς να το σβήσεις και να ξαναπατήσεις OCR ή να διαλέξεις πρόταση.</p></section>
+      <section class="panel"><h2>02 · Στοιχεία επικοινωνίας <small>— διορθώνονται</small></h2><div class="field-grid">${field('name','Ονοματεπώνυμο',{full:true,placeholder:'Όνομα και επώνυμο'})}<div id="nameSuggestions" class="name-suggestion-block"></div>${field('company','Εταιρεία',{full:true,placeholder:'Εταιρεία / προμηθευτής'})}<div id="companySuggestions" class="company-suggestion-block"></div>${field('role','Ιδιότητα',{full:true,placeholder:'π.χ. Τεχνικός'})}${field('phone','Σταθερά τηλέφωνα',{full:true,placeholder:'π.χ. 210 4809673 / 210 4809674'})}${field('mobile','Κινητά τηλέφωνα',{full:true,type:'tel',placeholder:'π.χ. 6980 569382 / 6945 770558'})}${field('fax','Fax',{type:'tel'})}<div id="faxSuggestions" class="fax-choice-block"></div><div class="phone-review-block" id="phoneReview"><button type="button" class="btn btn-outline" id="scanPhones">⌕ Επανέλεγχος μόνο τηλεφώνων</button><p class="hint">Αν λείπει κάποιος αριθμός, κάνε πρόσθετη ανάγνωση. Οι αβέβαιοι αριθμοί εμφανίζονται για επιβεβαίωση, όχι για αυτόματη αποθήκευση.</p><div id="phoneReviewResults" aria-live="polite"></div></div>${field('address','Διεύθυνση',{full:true,placeholder:'Οδός, αριθμός, Τ.Κ., πόλη'})}${field('email','Email (ένα ή περισσότερα)',{full:true,placeholder:'π.χ. name@company.gr / info@company.gr'})}${field('website','Ιστοσελίδα',{full:true,placeholder:'www.example.gr'})}</div></section>
       <section class="panel"><h2>03 · Τμήματα & μηχανήματα</h2><p class="panel-tip">Ο ίδιος τεχνικός μπορεί να υποστηρίζει πολλά μηχανήματα σε διαφορετικά τμήματα.</p><div id="assignments">${assignmentsHTML()}</div><datalist id="knownDepartments"><option value="Τεχνική Υπηρεσία"><option value="Ακτινολογικό"><option value="Χειρουργεία"><option value="ΜΕΘ"><option value="Καρδιολογικό"><option value="ΤΕΠ"><option value="Εργαστήρια"><option value="Φυσικοθεραπεία"><option value="Μικροβιολογικό"><option value="Αποστείρωση"><option value="Αιμοδοσία"><option value="Πληροφορική"></datalist><button type="button" class="btn btn-outline" id="addAssignment">＋ Προσθήκη μηχανήματος</button></section>
       <section class="panel"><h2>04 · Παρατηρήσεις</h2><div class="field"><label for="f_notes">Σημειώσεις / οδηγίες επικοινωνίας / ιστορικό</label><textarea id="f_notes" placeholder="π.χ. Συντηρεί τον υπέρηχο του ΤΕΠ. Τηλεφωνούμε πρώτα στο κινητό…">${esc(draft.notes||'')}</textarea></div><p class="hint">Μη γράφεις στοιχεία ασθενών ή άλλες ευαίσθητες πληροφορίες.</p><details class="raw-details"><summary>Προβολή του κειμένου OCR (για έλεγχο)</summary><div class="field"><textarea id="f_rawText" placeholder="Το αναγνωρισμένο κείμενο εμφανίζεται εδώ…">${esc(draft.rawText||'')}</textarea></div></details></section>
       <div class="action-bar"><button type="button" class="btn btn-primary btn-block" id="saveCard">✓ Αποθήκευση κάρτας</button>${id?'<button type="button" class="btn btn-danger" id="deleteCard" aria-label="Διαγραφή κάρτας">🗑</button>':''}</div><div id="formError" class="error-inline" aria-live="polite"></div>${id?`<div class="last-save">Τελευταία ενημέρωση: ${esc(fmtDate(draft.updatedAt))}</div>`:''}`;
@@ -118,10 +119,13 @@
     document.getElementById('cameraInput').onchange = async e => { const file=e.target.files[0]; e.target.value=''; await handlePhoto(file); };
     document.getElementById('galleryInput').onchange = async e => { const file=e.target.files[0]; e.target.value=''; await handlePhoto(file); };
     document.getElementById('retryOCR').onclick = () => processOCR();
+    document.getElementById('scanPhones').onclick = () => scanPhonesOnly();
+    phoneReviewCandidates = [];
     document.getElementById('addAssignment').onclick = () => { syncDraft(); draft.assignments.push({department:'',equipment:''}); document.getElementById('assignments').innerHTML = assignmentsHTML(); attachAssignmentButtons(); };
     attachAssignmentButtons();
     document.getElementById('f_phone').addEventListener('input', showFaxSuggestions);
     document.getElementById('f_fax').addEventListener('input', showFaxSuggestions);
+    for(const key of ['phone','mobile','fax'])document.getElementById('f_'+key).addEventListener('input', renderPhoneReview);
     showFaxSuggestions();
     document.getElementById('saveCard').onclick = saveForm;
     document.getElementById('deleteCard')?.addEventListener('click',async () => { if(confirm('Να διαγραφεί οριστικά αυτή η επαγγελματική κάρτα;')) { await deleteContact(editingId);toast('Η κάρτα διαγράφηκε.');showList(); } });
@@ -145,7 +149,8 @@
     return [...new Set([...matches].map(m => normalizedGreekPhone(m[0])).filter(Boolean))];
   }
   function normalizedGreekPhone(value) {
-    let number=String(value||'').replace(/\D/g,'');
+    // Μετατροπή μόνο μέσα σε υποψήφιο αριθμό, όχι στο υπόλοιπο κείμενο.
+    let number=String(value||'').replace(/[ΟοOo]/g,'0').replace(/[ΙIl|]/g,'1').replace(/\D/g,'');
     if(number.startsWith('0030')&&number.length===14) number=number.slice(4);
     else if(number.startsWith('30')&&number.length===12) number=number.slice(2);
     return number.length===10 ? number : '';
@@ -155,6 +160,93 @@
     const parts=String(fieldValue||'').split(/\s*[/;,|]\s*/).map(p=>p.trim()).filter(Boolean);
     return parts.filter(p=>!phoneNumbersIn(p).includes(faxNumber)).join(' / ');
   }
+  // OCR 14: αν το OCR διαβάσει 0 ως O/Ο ή 1 ως I/Ι/l, δεν πετάμε
+  // ολόκληρο τον αριθμό. Οι τέτοιες διορθώσεις εμφανίζονται για έλεγχο.
+  const tolerantPhonePattern = /(?<![\dΟοOoΙIl|])(?:(?:\+|00)30[\s.()\-]*)?(?:69(?:[\s.()\-]*[0-9ΟοOoΙIl|]){8}|2(?:[\s.()\-]*[0-9ΟοOoΙIl|]){9})(?![\dΟοOoΙIl|])/gu;
+  function phoneHintsFromText(text, origin='OCR') {
+    const result=[];
+    for(const raw of String(text||'').split(/\r?\n/)) {
+      let hit;
+      tolerantPhonePattern.lastIndex=0;
+      while((hit=tolerantPhonePattern.exec(raw))!==null){
+        const number=normalizedGreekPhone(hit[0]);
+        if(!/^(?:69\d{8}|2\d{9})$/.test(number))continue;
+        const before=raw.slice(Math.max(0,hit.index-22),hit.index);
+        const type=/(?:fax|φ[αά]ξ|facsimile)/iu.test(before)?'fax':number.startsWith('69')?'mobile':'phone';
+        const uncertain=/[ΟοOoΙIl|]/u.test(hit[0]);
+        result.push({number,type,uncertain,origin});
+      }
+    }
+    return result;
+  }
+  function addPhoneReview(entries){
+    const map=new Map(phoneReviewCandidates.map(c=>[c.number,c]));
+    for(const entry of entries){
+      if(!entry || !/^(?:69\d{8}|2\d{9})$/.test(entry.number))continue;
+      const old=map.get(entry.number);
+      if(!old || (old.uncertain && !entry.uncertain))map.set(entry.number,entry);
+    }
+    phoneReviewCandidates=[...map.values()].slice(0,12);
+    renderPhoneReview();
+  }
+  function renderPhoneReview(){
+    const box=document.getElementById('phoneReviewResults');if(!box)return;
+    box.replaceChildren();
+    const existing=new Set(['phone','mobile','fax'].flatMap(k=>phoneNumbersIn(document.getElementById('f_'+k)?.value||'')));
+    const pending=phoneReviewCandidates.filter(c=>!existing.has(c.number));
+    if(!pending.length)return;
+    const title=document.createElement('div');title.className='hint';
+    title.textContent='Πιθανοί επιπλέον αριθμοί — έλεγξέ τους πάνω στη φωτογραφία πριν τους προσθέσεις:';
+    box.appendChild(title);
+    for(const c of pending){
+      const line=document.createElement('div');line.className='phone-review-row';
+      const num=document.createElement('span');num.textContent=c.number+(c.uncertain?' · αβέβαιη ανάγνωση':'');line.appendChild(num);
+      for(const type of (c.number.startsWith('69')?['mobile']:['phone','fax'])){
+        const btn=document.createElement('button');btn.type='button';btn.className='phone-review-choice';
+        btn.textContent=type==='mobile'?'＋ Κινητό':type==='fax'?'＋ Fax':'＋ Σταθερό';
+        btn.onclick=()=>{
+          const input=document.getElementById('f_'+type);if(!input)return;
+          const prev=phoneNumbersIn(input.value);
+          input.value=[...new Set([...prev,c.number])].join(' / ');
+          if(draft)draft[type]=input.value;
+          showFaxSuggestions();renderPhoneReview();toast('Προστέθηκε ο αριθμός. Επιβεβαίωσέ τον στην κάρτα.');
+        };
+        line.appendChild(btn);
+      }
+      box.appendChild(line);
+    }
+  }
+  async function scanPhonesOnly(){
+    if(!draft?.photoBlob||ocrRunning)return;
+    syncDraft();ocrRunning=true;
+    const button=document.getElementById('scanPhones');
+    if(button){button.disabled=true;button.textContent='⌛ Έλεγχος αριθμών…';}
+    let worker;
+    try{
+      const Tess=await loadTesseract();
+      worker=await Tess.createWorker('eng',1);
+      const picture=await prepareOCRImage(draft.photoBlob);
+      await worker.setParameters({tessedit_pageseg_mode:Tess.PSM.SPARSE_TEXT,
+        tessedit_char_whitelist:'0123456789+()/.:- OolI',preserve_interword_spaces:'1',user_defined_dpi:'300'});
+      let numericText=(await worker.recognize(picture)).data?.text||'';
+      // Εφεδρικό πέρασμα από την αυθεντική περικομμένη φωτογραφία χωρίς
+      // φίλτρο αντίθεσης — ορισμένοι λεπτοί αριθμοί χάνονται στο grayscale.
+      if(phoneHintsFromText(numericText).length<2){
+        const natural=(await worker.recognize(draft.photoBlob)).data?.text||'';
+        if(natural.trim())numericText+='\n'+natural;
+      }
+      addPhoneReview(phoneHintsFromText(numericText,'Αριθμοί OCR').map(c=>({...c,uncertain:true})));
+      const additions=phoneHintsFromText(numericText);
+      if(additions.length){
+        draft.rawText=String(draft.rawText||'')+'\n\n--- Συμπληρωματική ανάγνωση αριθμών (απαιτεί έλεγχο) ---\n'+numericText;
+        const rawField=document.getElementById('f_rawText');if(rawField)rawField.value=draft.rawText;
+        toast('Ο επανέλεγχος ολοκληρώθηκε. Δες τους προτεινόμενους αριθμούς.');
+      }else toast('Δεν βρέθηκαν επιπλέον αριθμοί. Δοκίμασε καθαρότερη φωτογραφία.');
+    }catch(e){console.error('Number OCR',e);toast('Δεν μπόρεσε να ολοκληρωθεί ο επανέλεγχος αριθμών.');}
+    finally{if(worker)try{await worker.terminate();}catch(_){}ocrRunning=false;
+      if(button){button.disabled=false;button.textContent='⌕ Επανέλεγχος μόνο τηλεφώνων';}}
+  }
+
   function showFaxSuggestions() {
     const slot=document.getElementById('faxSuggestions');
     const fixedInput=document.getElementById('f_phone');
@@ -375,6 +467,8 @@
         close();
         if(!draft)return;
         draft.photoBlob=blob;
+        phoneReviewCandidates=[];
+        renderPhoneReview();
         releasePhotoURL();photoURL=URL.createObjectURL(blob);
         document.getElementById('photoArea').innerHTML=`<img src="${photoURL}" alt="Περικομμένη επαγγελματική κάρτα">`;
         document.getElementById('retryOCR').disabled=false;
@@ -783,6 +877,7 @@
         console.warn('Greek-only OCR fallback', secondaryError);
       }
       const grParsed = parseCard(greekText);
+      addPhoneReview([...(mixedParsed.uncertainPhones||[]),...(grParsed.uncertainPhones||[])]);
       const parsed = {...mixedParsed};
       let contactText='';
       if ((mixedParsed.mobiles||[]).length<2 || (mixedParsed.emails||[]).length<2) {
@@ -798,6 +893,9 @@
           const contactParsed=parseCard(contactText);
           parsed.contactMobiles=contactParsed.mobiles||[];
           parsed.contactEmails=contactParsed.emails||[];
+          parsed.contactLandlines=contactParsed.landlines||[];
+          parsed.contactFaxes=contactParsed.faxes||[];
+          addPhoneReview(contactParsed.uncertainPhones||[]);
         } catch(contactErr) {console.warn('Contact-region OCR fallback',contactErr);}
       }
       const nameCandidates = mergeNameCandidates(bilingual,greekText);
@@ -841,9 +939,9 @@
       if (!parsed.company && grParsed.company) parsed.company = grParsed.company;
       // Η ίδια τηλεφωνική γραμμή μπορεί να αναγνωρίζεται με ή χωρίς ετικέτα FAX.
       // Η παρουσία σαφούς ετικέτας σε ΕΣΤΩ ΕΝΑ πέρασμα υπερισχύει οριστικά.
-      const faxNumbers = new Set([...(mixedParsed.faxes||[]),...(grParsed.faxes||[])]);
+      const faxNumbers = new Set([...(mixedParsed.faxes||[]),...(grParsed.faxes||[]),...(parsed.contactFaxes||[])]);
       const commonPhoneFax=new Set([...(mixedParsed.sharedPhoneFax||[]),...(grParsed.sharedPhoneFax||[])]);
-      const combinedPhones = [...new Set([...(mixedParsed.landlines||[]), ...(grParsed.landlines||[])])].filter(p=>!faxNumbers.has(p)||commonPhoneFax.has(p)).slice(0,6);
+      const combinedPhones = [...new Set([...(mixedParsed.landlines||[]), ...(grParsed.landlines||[]),...(parsed.contactLandlines||[])])].filter(p=>!faxNumbers.has(p)||commonPhoneFax.has(p)).slice(0,6);
       parsed.phone = combinedPhones.join(' / ');
       parsed.fax = [...faxNumbers].join(' / ');
       // Πολλά κινητά/Email: ενώνουμε όλα τα τεκμηριωμένα στοιχεία από τις αναγνώσεις.
@@ -851,6 +949,8 @@
       const emailsMerged=[...new Set([...(mixedParsed.emails||[]), ...(grParsed.emails||[]), ...(parsed.contactEmails||[])])].filter(e=>emailQuality(e)>=3);
       parsed.mobile=mobilesMerged.join(' / ');
       parsed.email=emailsMerged.join(' / ');
+      // Δεν χάνουμε αριθμούς με οπτικά παρόμοια γράμματα: προτάσεις για έλεγχο.
+      addPhoneReview([...(mixedParsed.uncertainPhones||[]),...(grParsed.uncertainPhones||[]),...phoneHintsFromText(contactText).filter(x=>x.uncertain)]);
       if (!parsed.address && grParsed.address) parsed.address = grParsed.address;
 
       // Κρατάμε τις χειροκίνητες διορθώσεις. Αλλά προφανείς διευθύνσεις που
@@ -892,8 +992,11 @@
       draft.rawText = bilingual.trim() + (greekText.trim() ? '\n\n--- Ελληνική ανάγνωση ---\n' + greekText.trim() : '') + (contactText.trim() ? '\n\n--- Ανάγνωση στοιχείων επικοινωνίας ---\n' + contactText.trim() : '') + (logoText.trim() ? '\n\n--- Ανάγνωση λογότυπου ---\n' + logoText.trim() : '');
       applyDraftFields();
       showFaxSuggestions();
+      renderPhoneReview();
+      const missingNumbers=!phoneNumbersIn(draft.phone).length&&!phoneNumbersIn(draft.mobile).length&&!phoneNumbersIn(draft.fax).length;
       setOCRStatus(bilingual.trim() || greekText.trim()
-        ? (parsed.name ? 'Η αναγνώριση ολοκληρώθηκε. Έλεγξε το όνομα και τα στοιχεία πριν αποθηκεύσεις.' : 'Δεν εντοπίστηκε με σιγουριά ονοματεπώνυμο. Επίλεξε πρόταση ή γράψ’ το χειροκίνητα. Αν είχε μείνει λάθος όνομα, σβήσ’ το πρώτα.')
+        ? (missingNumbers?'Δεν συμπληρώθηκε κανένας αριθμός. Πάτησε «Επανέλεγχος μόνο τηλεφώνων» παρακάτω και έλεγξε τις προτάσεις.':
+          parsed.name ? 'Η αναγνώριση ολοκληρώθηκε. Έλεγξε το όνομα, όλους τους αριθμούς και τα υπόλοιπα στοιχεία πριν αποθηκεύσεις.' : 'Δεν εντοπίστηκε με σιγουριά ονοματεπώνυμο. Επίλεξε πρόταση ή γράψ’ το χειροκίνητα. Αν είχε μείνει λάθος όνομα, σβήσ’ το πρώτα.')
         : 'Δεν βρέθηκε αναγνώσιμο κείμενο. Γέμισε το κάδρο με την κάρτα και δοκίμασε χωρίς αντανακλάσεις.',
         bilingual.trim() || greekText.trim() ? '' : 'warning');
     } catch (error) {
@@ -917,11 +1020,12 @@
     // OCR 6: Εντοπισμός της θέσης FAX σε κάθε γραμμή και όχι απλώς η
     // παρουσία της λέξης. Υποστηρίζονται ελληνικά/λατινικά «ομόγλυφα»
     // (FAX, FΑΧ, ΦΑΞ, ΦΑΧ) και αριθμός σε επόμενη γραμμή.
-    const phonePattern = /(?<!\d)(?:(?:\+|00)30[\s.()\-]*)?(?:69(?:[\s.()\-]*\d){8}|2(?:[\s.()\-]*\d){9})(?!\d)/g;
+    const phonePattern = new RegExp(tolerantPhonePattern.source,'gu');
     const faxPattern = /(?<![\p{L}])(?:f[\s.·:\-]*[aαά][\s.·:\-]*[xχξ]|φ[\s.·:\-]*[αάa][\s.·:\-]*[ξχx]|facsimile|τηλεομοιοτυπ\p{L}*)(?![\p{L}])/giu;
     const telPattern = /(?<![\p{L}])(?:tel(?:ephone)?|phone|τηλ(?:εφων[οό])?)[.:：\s-]*(?![\p{L}])/giu;
     const landlines = [];
     const mobiles = [];
+    const uncertainPhones=[];
     const faxes = [];
     const sharedPhoneFax = new Set(); // Ένδειξη T/F: κοινός αριθμός τηλεφώνου/fax
     let awaitingFax = 0;
@@ -955,6 +1059,11 @@
           (!lastBefore && !!awaitingFax) ||
           // Αφορά «2104809426 FAX», όχι παλαιότερα σταθερά στην ίδια γραμμή.
           (!hasLaterNumber && !!closeAfter && !lastBefore);
+        // Μη συμπληρώνεις αυτόματα νούμερο που περιείχε λανθασμένα OCR γράμματα.
+        if(/[ΟοOoΙIl|]/u.test(hit[0])) {
+          uncertainPhones.push({number:value,type:isFax?'fax':value.startsWith('69')?'mobile':'phone',uncertain:true});
+          continue;
+        }
         if(value.startsWith('69')) {
           if(!isFax && !mobiles.includes(value)) mobiles.push(value);
         } else if(value.startsWith('2')) {
@@ -970,6 +1079,7 @@
     });
     // Το fax δεν παραμένει στη λίστα των σταθερών όταν υπάρχει σαφής ετικέτα.
     const filteredLandlines=landlines.filter(n=>!faxes.includes(n) || sharedPhoneFax.has(n));
+    result.uncertainPhones=uncertainPhones;
     result.mobiles=mobiles;
     if(mobiles.length) result.mobile=mobiles.join(' / ');
     if(filteredLandlines.length) result.phone=filteredLandlines.join(' / ');
